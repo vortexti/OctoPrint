@@ -271,21 +271,27 @@ class PositionRecord(object):
 		return dict((attr, getattr(self, attr)) for attr in attrs)
 
 class TemperatureRecord(object):
+	THRESHOLD = 2
+
 	def __init__(self):
 		self._tools = dict()
 		self._bed = (None, None)
+		self._heating = False
 
 	def copy_from(self, other):
 		self._tools = other.tools
 		self._bed = other.bed
+		self._heating = other.heating
 
 	def set_tool(self, tool, actual=None, target=None):
 		current = self._tools.get(tool, (None, None))
 		self._tools[tool] = self._to_new_tuple(current, actual, target)
+		self._update_heating()
 
 	def set_bed(self, actual=None, target=None):
 		current = self._bed
 		self._bed = self._to_new_tuple(current, actual, target)
+		self._update_heating()
 
 	@property
 	def tools(self):
@@ -294,6 +300,10 @@ class TemperatureRecord(object):
 	@property
 	def bed(self):
 		return self._bed
+
+	@property
+	def heating(self):
+		return self._heating
 
 	def as_script_dict(self):
 		result = dict()
@@ -308,6 +318,19 @@ class TemperatureRecord(object):
 		                   target=bed[1])
 
 		return result
+
+	def _update_heating(self):
+		heating = False
+
+		# tools
+		for actual, target in self.tools.values():
+			heating = heating or not self._temperature_reached(actual, target)
+
+		# bed
+		actual, target = self.bed
+		heating = heating or not self._temperature_reached(actual, target)
+
+		self._heating = heating
 
 	@classmethod
 	def _to_new_tuple(cls, current, actual, target):
@@ -325,6 +348,12 @@ class TemperatureRecord(object):
 			return actual, old_target
 		else:
 			return actual, target
+
+	@classmethod
+	def _temperature_reached(cls, actual, target):
+		if actual is None or target is None:
+			return True
+		return abs(target - actual) < cls.THRESHOLD
 
 class MachineCom(object):
 	STATE_NONE = 0
@@ -574,6 +603,10 @@ class MachineCom(object):
 	@property
 	def _active(self):
 		return self._monitoring_active and self._send_queue_active
+
+	@property
+	def _is_heating(self):
+		return self._heating or self.last_temperature.heating
 
 	##~~ internal state management
 
@@ -1005,7 +1038,7 @@ class MachineCom(object):
 		if self._currentFile is None:
 			raise ValueError("No file selected for printing")
 
-		self._heatupWaitStartTime = None if not self._heating else time.time()
+		self._heatupWaitStartTime = None if not self._is_heating else time.time()
 		self._heatupWaitTimeLost = 0.0
 		self._pauseWaitStartTime = 0
 		self._pauseWaitTimeLost = 0.0
@@ -1654,7 +1687,7 @@ class MachineCom(object):
 				                                                and not self.isSdPrinting()
 				                                                and (not self.job_on_hold or self._resendActive)
 				                                                and not self._long_running_command
-				                                                and not self._heating and now >= self._ok_timeout)) \
+				                                                and not self._is_heating and now >= self._ok_timeout)) \
 						and (not self._blockWhileDwelling or not self._dwelling_until or now > self._dwelling_until):
 					# We have two timeout variants:
 					#
@@ -2257,7 +2290,7 @@ class MachineCom(object):
 		from sd, busy with a long running command or heating, no poll will be done.
 		"""
 
-		if self.isOperational() and not self._temperature_autoreporting and not self._connection_closing and not self.isStreaming() and not self._long_running_command and not self._heating and not self._dwelling_until and not self._manualStreaming:
+		if self.isOperational() and not self._temperature_autoreporting and not self._connection_closing and not self.isStreaming() and not self._long_running_command and not self._is_heating and not self._dwelling_until and not self._manualStreaming:
 			self.sendCommand("M105", cmd_type="temperature_poll", tags={"trigger:comm.poll_temperature"})
 
 	def _poll_sd_status(self):
@@ -2268,7 +2301,7 @@ class MachineCom(object):
 		command or heating, no poll will be done.
 		"""
 
-		if self.isOperational() and not self._sdstatus_autoreporting and not self._connection_closing and self.isSdFileSelected() and not self._long_running_command and not self._dwelling_until and not self._heating:
+		if self.isOperational() and not self._sdstatus_autoreporting and not self._connection_closing and self.isSdFileSelected() and not self._long_running_command and not self._dwelling_until and not self._is_heating:
 			self.sendCommand("M27", cmd_type="sd_status_poll", tags={"trigger:comm.poll_sd_status"})
 
 	def _set_autoreport_temperature_interval(self, interval=None):
