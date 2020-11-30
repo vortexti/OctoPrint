@@ -10,6 +10,7 @@ you can just create it - it will only get created by OctoPrint once you save set
 settings.
 
 Note that many of these settings are available from the "Settings" menu in OctoPrint itself.
+They can also be configured via :ref:`config command line interface <sec-configuration-cli>`.
 
 .. contents::
 
@@ -23,9 +24,6 @@ Use the following settings to enable access control:
 .. code-block:: yaml
 
    accessControl:
-     # whether to enable access control or not. Defaults to true
-     enabled: true
-
      # The user manager implementation to use for accessing user information. Currently only a filebased
      # user manager is implemented which stores configured accounts in a YAML file (Default: users.yaml
      # in the default configuration folder, see below)
@@ -73,6 +71,10 @@ Use the following settings to enable access control:
 
      # If a remote user is not found, add them. Use this only if all users from the remote system can use OctoPrint.
      addRemoteUsers: false
+
+     # Secret salt used for password hashing, DO NOT TOUCH. If changed you will no longer be able to log in with your
+     # existing accounts.
+     salt: someSecretSalt
 
 .. _sec-configuration-config_yaml-api:
 
@@ -123,6 +125,10 @@ appearance or to modify the order and presence of the various UI components:
      # acrylic for its frame ;)
      colorTransparent: false
 
+     # Show the internal filename in the files sidebar, if necessary
+     # UI change only
+     showInternalFilename: true
+
      # Configures the order and availability of the UI components
      components:
 
@@ -146,10 +152,14 @@ appearance or to modify the order and presence of the various UI components:
          navbar:
          - settings
          - systemmenu
+         - plugin_announcements
+         - plugin_logging
+         - plugin_pi_support
          - login
 
          # order of sidebar items
          sidebar:
+         - plugin_firmware_check
          - connection
          - state
          - files
@@ -158,7 +168,7 @@ appearance or to modify the order and presence of the various UI components:
          tab:
          - temperature
          - control
-         - gcodeviewer
+         - plugin_gcodeviewer
          - terminal
          - timelapse
 
@@ -175,16 +185,39 @@ appearance or to modify the order and presence of the various UI components:
          - features
          - webcam
          - accesscontrol
+         - plugin_gcodeviewer
          - api
+         - plugin_appkeys
          - section_octoprint
          - folders
          - appearance
-         - logs
+         - plugin_logging
+         - plugin_pluginmanager
+         - plugin_softwareupdate
+         - plugin_announcements
+         - plugin_backup
+         - plugin_tracking
+         - plugin_errortracking
 
          # order of user settings
          usersettings:
          - access
          - interface
+
+         # order of wizards
+         wizard:
+         - plugin_backup
+         - plugin_corewizard_acl
+
+         # order of about dialog entries
+         about:
+         - about
+         - plugin_pi_support
+         - supporters
+         - authors
+         - license
+         - thirdparty
+         - plugin_pluginmanager
 
          # order of generic templates
          generic: []
@@ -222,7 +255,7 @@ appearance or to modify the order and presence of the various UI components:
             tab:
             - plugin_helloworld
 
-   OctoPrint will then display the tabs in the order ``plugin_helloworld``, ``temperature``, ``control``, ``gcodeviewer``,
+   OctoPrint will then display the tabs in the order ``plugin_helloworld``, ``temperature``, ``control``, ``plugin_gcodeviewer``,
    ``terminal``, ``timelapse`` plus any other plugins.
 
 
@@ -774,6 +807,9 @@ Use the following settings to configure the serial connection to the printer:
      # the response skips on the ok)
      triggerOkForM29: true
 
+     # Percentage of resend requests among all sent lines that should be considered critical
+     resendRatioThreshold: 10
+
      capabilities:
 
        # Whether to enable temperature autoreport in the firmware if its support is detected
@@ -912,6 +948,12 @@ Use the following settings to configure the server:
 
        # Command to shut down the system OctoPrint is running on, defaults to being unset
        systemShutdownCommand: sudo shutdown -h now
+
+       # pip command associated with OctoPrint, used for installing plugins and updates,
+       # if unset (default) the command will be autodetected based on the current python
+       # executable - unless you have a really special setup this is the right way to do
+       # it and there should be no need to ever even touch this setting
+       localPipCommand: None
 
      # Configuration of the regular online connectivity check
      onlineCheck:
@@ -1095,6 +1137,8 @@ Use `Javascript regular expressions <https://developer.mozilla.org/en/docs/Web/J
      regex: '(Send: (N\d+\s+)?M27)|(Recv: SD printing byte)'
    - name: Suppress wait responses
      regex: 'Recv: wait'
+   - name: Suppress processing responses
+     regex: 'Recv: (echo:\s*)?busy:\s*processing'
 
 .. _sec-configuration-config_yaml-webcam:
 
