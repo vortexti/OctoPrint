@@ -1,7 +1,6 @@
 ---
-name: Bug report
-about: Create a report to help improve OctoPrint
-
+name: 🐛 Report a bug
+about: Create a bug report to help improve OctoPrint
 ---
 
 <!--
@@ -100,7 +99,8 @@ If applicable, always include if unsure.
 #### Link to octoprint.log
 
 <!--
-On gist.github.com or pastebin.com. ALWAYS INCLUDE and never truncate.
+Directly uploaded here or on gist.github.com or pastebin.com.
+ALWAYS INCLUDE and never truncate.
 
 The Contribution Guidelines tell you where to find that.
 -->
@@ -108,8 +108,9 @@ The Contribution Guidelines tell you where to find that.
 #### Link to contents of terminal tab or serial.log
 
 <!--
-On gist.github.com or pastebin.com. If applicable, always include if unsure or
-reporting communication issues. Never truncate.
+Directly uploaded here or on gist.github.com or pastebin.com.
+If applicable, always include if unsure or reporting communication issues.
+Never truncate.
 
 serial.log is usually not written due to performance reasons and must be
 enabled explicitly. Provide at the very least the FULL contents of your
@@ -120,8 +121,8 @@ a serial.log (which the Contribution Guidelines tell you where to find).
 #### Link to contents of Javascript console in the browser
 
 <!--
-On gist.github.com or pastebin.com or alternatively a screenshot. If applicable -
-always include if unsure or reporting UI issues.
+Directly uploaded here or on gist.github.com or pastebin.com.
+If applicable - always include if unsure or reporting UI issues.
 
 The Contribution Guidelines tell you where to find that.
 -->
