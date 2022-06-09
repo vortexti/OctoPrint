@@ -115,9 +115,9 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
     The `StartupPlugin` allows hooking into the startup of OctoPrint. It can be used to start up additional services
     on or just after the startup of the server.
 
-    `StartupPlugin` is a [SortablePlugin][octoprint.plugin.core.SortablePlugin] and provides
-    sorting contexts for [on_startup][octoprint.plugin.StartupPlugin.on_startup] as well as
-    [on_after_startup][octoprint.plugin.StartupPlugin.on_after_startup].
+    `StartupPlugin` is a [`SortablePlugin`][octoprint.plugin.core.SortablePlugin] and provides
+    sorting contexts for [`on_startup`][octoprint.plugin.StartupPlugin.on_startup] as well as
+    [`on_after_startup`][octoprint.plugin.StartupPlugin.on_after_startup].
     """
 
     def on_startup(self, host, port):
@@ -126,16 +126,17 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
         will listen on. Note that the `host` may be `0.0.0.0` if it will listen on all interfaces, so you can't just
         blindly use this for constructing publicly reachable URLs. Also note that when this method is called, the server
         is not actually up yet and none of your plugin's APIs or blueprints will be reachable yet. If you need to be
-        externally reachable, use :func:`on_after_startup` instead or additionally.
+        externally reachable, use `on_after_startup` instead or additionally.
 
-        .. warning::
+        !!! warning
 
-           Do not perform long-running or even blocking operations in your implementation or you **will** block and break the server.
+            Do not perform long-running or even blocking operations in your implementation or you **will** block and break the server.
 
         The relevant sorting context is `StartupPlugin.on_startup`.
 
-        :param string host: the host the server will listen on, may be `0.0.0.0`
-        :param int port:    the port the server will listen on
+        Arguments:
+            host (string): the host the server will listen on, may be `0.0.0.0`
+            port (int): the port the server will listen on
         """
 
         pass
@@ -144,9 +145,9 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
         """
         Called just after launch of the server, so when the listen loop is actually running already.
 
-        .. warning::
+        !!! warning
 
-           Do not perform long-running or even blocking operations in your implementation or you **will** block and break the server.
+            Do not perform long-running or even blocking operations in your implementation or you **will** block and break the server.
 
         The relevant sorting context is `StartupPlugin.on_after_startup`.
         """
@@ -156,21 +157,23 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
 
 class ShutdownPlugin(OctoPrintPlugin, SortablePlugin):
     """
-    The `ShutdownPlugin` allows hooking into the shutdown of OctoPrint. It's usually used in conjunction with the
-    :class:`StartupPlugin` mixin, to cleanly shut down additional services again that where started by the :class:`StartupPlugin`
-    part of the plugin.
+    The `ShutdownPlugin` allows hooking into the shutdown of OctoPrint. It's usually
+    used in conjunction with the [`StartupPlugin`][octoprint.plugin.types.StartupPlugin]
+    mixin, to cleanly shut down additional services again that where started by the
+    [`StartupPlugin`][octoprint.plugin.types.StartupPlugin] part of the plugin.
 
-    `ShutdownPlugin` is a :class:`~octoprint.plugin.core.SortablePlugin` and provides a sorting context for
-    :meth:`~octoprint.plugin.ShutdownPlugin.on_shutdown`.
+    `ShutdownPlugin` is a [`SortablePlugin`](octoprint.plugin.core.SortablePlugin) and
+    provides a sorting context for `ShutdownPlugin.on_shutdown`.
     """
 
     def on_shutdown(self):
         """
         Called upon the imminent shutdown of OctoPrint.
 
-        .. warning::
+        !!! warning
 
-           Do not perform long-running or even blocking operations in your implementation or you **will** block and break the server.
+            Do not perform long-running or even blocking operations in your
+            implementation or you **will** block and break the server.
 
         The relevant sorting context is `ShutdownPlugin.on_shutdown`.
         """
@@ -179,18 +182,18 @@ class ShutdownPlugin(OctoPrintPlugin, SortablePlugin):
 
 class AssetPlugin(OctoPrintPlugin, RestartNeedingPlugin):
     """
-    The `AssetPlugin` mixin allows plugins to define additional static assets such as JavaScript or CSS files to
-    be automatically embedded into the pages delivered by the server to be used within the client sided part of
-    the plugin.
+    The `AssetPlugin` mixin allows plugins to define additional static assets such as
+    JavaScript or CSS files to be automatically embedded into the pages delivered by the
+    server to be used within the client sided part of the plugin.
 
-    A typical usage of the `AssetPlugin` functionality is to embed a custom view model to be used by templates injected
-    through a [`TemplatePlugin`][octoprint.plugins.TemplatePlugin].
+    A typical usage of the `AssetPlugin` functionality is to embed a custom view model to
+    be used by templates injected through a [`TemplatePlugin`][octoprint.plugin.TemplatePlugin].
     """
 
     def get_asset_folder(self):
         """
         Defines the folder where the plugin stores its static assets as defined in
-        [get_assets][octoprint.plugin.types.AssetPlugin.get_assets]. Override this if
+        [`get_assets`][octoprint.plugin.types.AssetPlugin.get_assets]. Override this if
         your plugin stores its assets at some other place than the `static` sub folder in
         the plugin base directory.
 
@@ -203,23 +206,28 @@ class AssetPlugin(OctoPrintPlugin, RestartNeedingPlugin):
 
     def get_assets(self):
         """
-        Defines the static assets the plugin offers. The following asset types are recognized and automatically
-        imported at the appropriate places to be available:
+        Defines the static assets the plugin offers. The following asset types are
+        recognized and automatically imported at the appropriate places to be available:
 
         `js`
         :   JavaScript files, such as additional view models
 
         `jsclient`
-        :   JavaScript files containing additional parts for the JS Client Library (since 1.3.10)
+        :   JavaScript files containing additional parts for the JS Client Library
+            (since 1.3.10)
 
         `css`
-        :   CSS files with additional styles, will be embedded into delivered pages when not running in LESS mode.
+        :   CSS files with additional styles, will be embedded into delivered pages when
+            not running in LESS mode.
 
         `less`
-        :   LESS files with additional styles, will be embedded into delivered pages when running in LESS mode.
+        :   LESS files with additional styles, will be embedded into delivered pages when
+            running in LESS mode.
 
-        The expected format to be returned is a dictionary mapping one or more of these keys to a list of files of that
-        type, the files being represented as relative paths from the asset folder as defined via [`get_asset_folder`][octoprint.plugin.AssetPlugin.get_asset_folder].
+        The expected format to be returned is a dictionary mapping one or more of these
+        keys to a list of files of that type, the files being represented as relative
+        paths from the asset folder as defined via
+        [`get_asset_folder`][octoprint.plugin.AssetPlugin.get_asset_folder].
 
         Example:
 
@@ -233,11 +241,12 @@ class AssetPlugin(OctoPrintPlugin, RestartNeedingPlugin):
                  )
             ```
 
-        The assets will be made available by OctoPrint under the URL `/plugin/<plugin identifier>/static/<path>`, with
-        `plugin identifier` being the plugin's identifier and `path` being the path as defined in the asset dictionary.
+        The assets will be made available by OctoPrint under the URL
+        `/plugin/<plugin identifier>/static/<path>`, with `plugin identifier` being the
+        plugin's identifier and `path` being the path as defined in the asset dictionary.
 
-        Assets of the types `js`, `css` and `less` will be automatically bundled by OctoPrint using
-        [Flask-Assets](http://flask-assets.readthedocs.org/en/latest/).
+        Assets of the types `js`, `css` and `less` will be automatically bundled by
+        OctoPrint using [Flask-Assets](http://flask-assets.readthedocs.org/en/latest/).
 
         Returns:
             (dict): A dictionary describing the static assets to publish for the plugin.
@@ -247,98 +256,120 @@ class AssetPlugin(OctoPrintPlugin, RestartNeedingPlugin):
 
 class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
     """
-    Using the `TemplatePlugin` mixin plugins may inject their own components into the OctoPrint web interface.
+    Using the `TemplatePlugin` mixin plugins may inject their own components into the
+    OctoPrint web interface.
 
     Currently OctoPrint supports the following types of injections out of the box:
 
     Navbar
-       The right part of the navigation bar located at the top of the UI can be enriched with additional links. Note that
-       with the current implementation, plugins will always be located *to the left* of the existing links.
+    :   The right part of the navigation bar located at the top of the UI can be enriched
+        with additional links. Note that with the current implementation, plugins will
+        always be located *to the left* of the existing links.
 
-       The included template must be called `<plugin identifier>_navbar.jinja2` (e.g. `myplugin_navbar.jinja2`) unless
-       overridden by the configuration supplied through :func:`get_template_configs`.
+        The included template must be called `<plugin identifier>_navbar.jinja2` (e.g.
+        `myplugin_navbar.jinja2`) unless overridden by the configuration supplied through
+        `get_template_configs`.
 
-       The template will be already wrapped into the necessary structure, plugins just need to supply the pure content. The
-       wrapper structure will have all additional classes and styles applied as specified via the configuration supplied
-       through :func:`get_template_configs`.
+        The template will be already wrapped into the necessary structure, plugins just
+        need to supply the pure content. The wrapper structure will have all additional
+        classes and styles applied as specified via the configuration supplied through
+        `get_template_configs`.
 
     Sidebar
-       The left side bar containing Connection, State and Files sections can be enriched with additional sections. Note
-       that with the current implementations, plugins will always be located *beneath* the existing sections.
+    :   The left side bar containing Connection, State and Files sections can be enriched
+        with additional sections. Note that with the current implementations, plugins
+        will always be located *beneath* the existing sections.
 
-       The included template must be called `<plugin identifier>_sidebar.jinja2` (e.g. `myplugin_sidebar.jinja2`) unless
-       overridden by the configuration supplied through :func:`get_template_configs`.
+        The included template must be called `<plugin identifier>_sidebar.jinja2` (e.g.
+        `myplugin_sidebar.jinja2`) unless overridden by the configuration supplied
+        through `get_template_configs`.
 
-       The template will be already wrapped into the necessary structure, plugins just need to supply the pure content. The
-       wrapper divs for both the whole box as well as the content pane will have all additional classes and styles applied
-       as specified via the configuration supplied through :func:`get_template_configs`.
+        The template will be already wrapped into the necessary structure, plugins just
+        need to supply the pure content. The wrapper divs for both the whole box as well
+        as the content pane will have all additional classes and styles applied as
+        specified via the configuration supplied through `get_template_configs`.
 
     Tabs
-       The available tabs of the main part of the interface may be extended with additional tabs originating from within
-       plugins. Note that with the current implementation, plugins will always be located *to the right* of the existing
-       tabs.
+    :   The available tabs of the main part of the interface may be extended with
+        additional tabs originating from within plugins. Note that with the current
+        implementation, plugins will always be located *to the right* of the existing
+        tabs.
 
-       The included template must be called `<plugin identifier>_tab.jinja2` (e.g. `myplugin_tab.jinja2`) unless
-       overridden by the configuration supplied through :func:`get_template_configs`.
+        The included template must be called `<plugin identifier>_tab.jinja2` (e.g.
+        `myplugin_tab.jinja2`) unless overridden by the configuration supplied through
+        `get_template_configs`.
 
-       The template will be already wrapped into the necessary structure, plugins just need to supply the pure content. The
-       wrapper div and the link in the navigation will have the additional classes and styles applied as specified via the
-       configuration supplied through :func:`get_template_configs`.
+        The template will be already wrapped into the necessary structure, plugins just
+        need to supply the pure content. The wrapper div and the link in the navigation
+        will have the additional classes and styles applied as specified via the
+        configuration supplied through `get_template_configs`.
 
     Settings
-       Plugins may inject a dialog into the existing settings view. Note that with the current implementation, plugins
-       will always be listed beneath the "Plugins" header in the settings link list, ordered alphabetically after
-       their displayed name.
+    :   Plugins may inject a dialog into the existing settings view. Note that with the
+        current implementation, plugins will always be listed beneath the "Plugins"
+        header in the settings link list, ordered alphabetically after their displayed
+        name.
 
-       The included template must be called `<plugin identifier>_settings.jinja2` (e.g. `myplugin_settings.jinja2`) unless
-       overridden by the configuration supplied through :func:`get_template_configs`.
+        The included template must be called `<plugin identifier>_settings.jinja2` (e.g.
+        `myplugin_settings.jinja2`) unless overridden by the configuration supplied
+        through `get_template_configs`.
 
-       The template will be already wrapped into the necessary structure, plugins just need to supply the pure content. The
-       wrapper div and the link in the navigation will have the additional classes and styles applied as defined via the
-       configuration through :func:`get_template_configs`.
+        The template will be already wrapped into the necessary structure, plugins just
+        need to supply the pure content. The wrapper div and the link in the navigation
+        will have the additional classes and styles applied as defined via the
+        configuration through `get_template_configs`.
 
     Wizards
-       Plugins may define wizard dialogs to display to the user if necessary (e.g. in case of missing information that
-       needs to be queried from the user to make the plugin work). Note that with the current implementation, all
-       wizard dialogs will be will always be sorted by their `mandatory` attribute (which defaults to `False`) and then
-       alphabetically by their `name`. Hence, mandatory wizard steps will come first, sorted alphabetically, then the
-       optional steps will follow, also alphabetically. A wizard dialog provided through a plugin will only be displayed
-       if the plugin reports the wizard as being required through :meth:`~octoprint.plugin.WizardPlugin.is_wizard_required`.
-       Please also refer to the :class:`~octoprint.plugin.WizardPlugin` mixin for further details on this.
+    :   Plugins may define wizard dialogs to display to the user if necessary (e.g. in
+        case of missing information that needs to be queried from the user to make the
+        plugin work). Note that with the current implementation, all wizard dialogs will
+        always be sorted by their `mandatory` attribute (which defaults to `False`) and
+        then alphabetically by their `name`. Hence, mandatory wizard steps will come
+        first, sorted alphabetically, then the optional steps will follow, also
+        alphabetically. A wizard dialog provided through a plugin will only be displayed
+        if the plugin reports the wizard as being required through `is_wizard_required`.
+        Please also refer to the [`WizardPlugin`][octoprint.plugin.types.WizardPlugin]
+        mixin for further details on this.
 
-       The included template must be called `<plugin identifier>_wizard.jinja2` (e.g. `myplugin_wizard.jinja2`) unless
-       overridden by the configuration supplied through :func:`get_template_configs`.
+        The included template must be called `<plugin identifier>_wizard.jinja2` (e.g.
+        `myplugin_wizard.jinja2`) unless overridden by the configuration supplied through
+        `get_template_configs`.
 
-       The template will be already wrapped into the necessary structure, plugins just need to supply the pure content.
-       The wrapper div and the link in the wizard navigation will have the additional classes and styles applied as defined
-       via the configuration supplied through :func:`get_template_configs`.
+        The template will be already wrapped into the necessary structure, plugins just
+        need to supply the pure content. The wrapper div and the link in the wizard
+        navigation will have the additional classes and styles applied as defined via the
+        configuration supplied through `get_template_configs`.
 
-       .. note::
+        !!! note
 
-          A note about `mandatory` wizard steps: In the current implementation, marking a wizard step as
-          mandatory will *only* make it styled accordingly. It is the task of the :ref:`view model <sec-plugins-viewmodels>`
-          to actually prevent the user from skipping the dialog by implementing the `onWizardTabChange`
-          callback and returning `false` there if it is detected that the user hasn't yet filled in the
-          wizard step.
+            A note about `mandatory` wizard steps: In the current implementation, marking
+            a wizard step as mandatory will *only* make it styled accordingly. It is the
+            task of the [view model]() to actually prevent the user from skipping the
+            dialog by implementing the `onWizardTabChange` callback and returning `false`
+            there if it is detected that the user hasn't yet filled in the wizard step.
 
-       .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
 
     About
-       Plugins may define additional panels into OctoPrint's "About" dialog. Note that with the current implementation
-       further about dialog panels will be sorted alphabetically by their name and sorted after the predefined ones.
+    :   Plugins may define additional panels into OctoPrint's "About" dialog. Note that
+        with the current implementation further about dialog panels will be sorted
+        alphabetically by their name and sorted after the predefined ones.
 
-       The included template must be called `<plugin identifier>_about.jinja2` (e.g. `myplugin_about.jinja2`) unless
-       overridden by the configuration supplied through :func:`get_template_configs`.
+        The included template must be called `<plugin identifier>_about.jinja2` (e.g.
+        `myplugin_about.jinja2`) unless overridden by the configuration supplied through
+        `get_template_configs`.
 
-       The template will be already wrapped into the necessary structure, plugins just need to supply the pure content. The
-       wrapped div and the link in the navigation will have the additional classes and styles applied as defined via
-       the configuration supplied through :func:`get_template_configs`.
+        The template will be already wrapped into the necessary structure, plugins just
+        need to supply the pure content. The wrapped div and the link in the navigation
+        will have the additional classes and styles applied as defined via the
+        configuration supplied through `get_template_configs`.
 
-       .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
 
     Generic
-       Plugins may also inject arbitrary templates into the page of the web interface itself, e.g. in order to
-       add overlays or dialogs to be called from within the plugin's JavaScript code.
+    :   Plugins may also inject arbitrary templates into the page of the web interface
+        itself, e.g. in order to add overlays or dialogs to be called from within the
+        plugin's JavaScript code.
 
     .. figure:: ../images/template-plugin-types-main.png
        :align: center
@@ -352,16 +383,19 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
 
        Template injection types in the settings
 
-    You can find an example for a simple plugin which injects navbar, tab and settings content into the interface in
-    the "helloworld" plugin in OctoPrint's :ref:`Plugin Tutorial <sec-plugins-gettingstarted>`.
+    You can find an example for a simple plugin which injects navbar, tab and settings
+    content into the interface in the "helloworld" plugin in OctoPrint's
+    [Plugin Tutorial]().
 
-    Plugins may replace existing components, see the `replaces` keyword in the template configurations returned by
-    :meth:`.get_template_configs` below. Note that if a plugin replaces a core component, it is the plugin's
-    responsibility to ensure that all core functionality is still maintained.
+    Plugins may replace existing components, see the `replaces` keyword in the template
+    configurations returned by `get_template_configs` below. Note that if a plugin
+    replaces a core component, it is the plugin's responsibility to ensure that all core
+    functionality is still maintained.
 
-    Plugins can also add additional template types by implementing the :ref:`octoprint.ui.web.templatetypes <sec-plugins-hook-ui-web-templatetypes>` hook.
+    Plugins can also add additional template types by implementing the
+    [`octoprint.ui.web.templatetypes` hook]().
 
-    `TemplatePlugin` is a :class:`~octoprint.plugin.core.ReloadNeedingPlugin`.
+    `TemplatePlugin` is a [`ReloadNeedingPlugin`][octoprint.plugin.core.ReloadNeedingPlugin].
     """
 
     @property
@@ -370,171 +404,184 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
 
     def get_template_configs(self):
         """
-        Allows configuration of injected navbar, sidebar, tab and settings templates (and also additional templates of
-        types specified by plugins through the :ref:`octoprint.ui.web.templatetypes <sec-plugins-hook-ui-web-templatetypes>` hook).
-        Should be a list containing one configuration object per template to inject. Each configuration object is
+        Allows configuration of injected navbar, sidebar, tab and settings templates (and
+        also additional templates of types specified by plugins through the
+        [`octoprint.ui.web.templatetypes` hook]()). Should be a list containing one
+        configuration object per template to inject. Each configuration object is
         represented by a dictionary which may contain the following keys:
 
-        .. list-table::
-           :widths: 5 95
+        `type`
+        :   The template type the configuration is targeting. Possible values here are
+            `navbar`, `sidebar`, `tab`, `settings` and `generic`. **Mandatory.**
 
-           * - type
-             - The template type the configuration is targeting. Possible values here are `navbar`, `sidebar`,
-               `tab`, `settings` and `generic`. Mandatory.
-           * - name
-             - The name of the component, if not set the name of the plugin will be used. The name will be visible at
-               a location depending on the `type`:
+        `name`
+        :   The name of the component, if not set the name of the plugin will be used.
+            The name will be visible at a location depending on the `type`:
 
-                 * `navbar`: unused
-                 * `sidebar`: sidebar heading
-                 * `tab`: tab heading
-                 * `settings`: settings link
-                 * `wizard`: wizard link
-                 * `about`: about link
-                 * `generic`: unused
+              * `navbar`: unused
+              * `sidebar`: sidebar heading
+              * `tab`: tab heading
+              * `settings`: settings link
+              * `wizard`: wizard link
+              * `about`: about link
+              * `generic`: unused
 
-           * - template
-             - Name of the template to inject, default value depends on the `type`:
+        `template`
+        :   Name of the template to inject, default value depends on the `type`:
 
-                 * `navbar`: `<plugin identifier>_navbar.jinja2`
-                 * `sidebar`: `<plugin identifier>_sidebar.jinja2`
-                 * `tab`: `<plugin identifier>_tab.jinja2`
-                 * `settings`: `<plugin identifier>_settings.jinja2`
-                 * `wizard`: `<plugin identifier>_wizard.jinja2`
-                 * `about`: `<plugin identifier>_about.jinja2`
-                 * `generic`: `<plugin identifier>.jinja2`
+              * `navbar`: `<plugin identifier>_navbar.jinja2`
+              * `sidebar`: `<plugin identifier>_sidebar.jinja2`
+              * `tab`: `<plugin identifier>_tab.jinja2`
+              * `settings`: `<plugin identifier>_settings.jinja2`
+              * `wizard`: `<plugin identifier>_wizard.jinja2`
+              * `about`: `<plugin identifier>_about.jinja2`
+              * `generic`: `<plugin identifier>.jinja2`
 
-           * - suffix
-             - Suffix to attach to the component identifier and the div identifier of the injected template. Will be
-               `_<index>` if not provided and not the first template of the type, with `index` counting from 1 and
-               increasing for each template of the same type.
+        `suffix`
+        :   Suffix to attach to the component identifier and the div identifier of the
+            injected template. Will be `_<index>` if not provided and not the first
+            template of the type, with `index` counting from 1 and increasing for each
+            template of the same type.
 
-               Example: If your plugin with identifier `myplugin` defines two tab components like this:
+            !!! example
 
-               .. code-block:: python
+                If your plugin with identifier `myplugin` defines two tab components like
+                this:
 
-                  return [
-                      dict(type="tab", template="myplugin_first_tab.jinja2"),
-                      dict(type="tab", template="myplugin_second_tab.jinja2")
-                  ]
+                ``` python
+                return [
+                    {"type"="tab", "template"="myplugin_first_tab.jinja2"},
+                    {"type"="tab", "template"="myplugin_second_tab.jinja2"}
+                ]
+                ```
 
-               then the first tab will have the component identifier `plugin_myplugin` and the second one will have
-               the component identifier `plugin_myplugin_2` (the generated divs will be `tab_plugin_myplugin` and
-               `tab_plugin_myplugin_2` accordingly). Notice that the first tab is *not* called `plugin_myplugin_1` --
-               as stated above while the `index` used as default suffix starts counting at 1, it will not be applied
-               for the first component of a given type.
+                then the first tab will have the component identifier `plugin_myplugin`
+                and the second one will have the component identifier `plugin_myplugin_2`
+                (the generated divs will be `tab_plugin_myplugin` and
+                `tab_plugin_myplugin_2` accordingly). Notice that the first tab is *not*
+                called `plugin_myplugin_1` -- as stated above while the `index` used as
+                default suffix starts counting at 1, it will not be applied for the first
+                component of a given type.
 
-               If on the other hand your plugin's definition looks like this:
+                If on the other hand your plugin's definition looks like this:
 
-               .. code-block:: python
+                ``` python
+                return [
+                    {"type"="tab", "template"="myplugin_first_tab.jinja2", "suffix"="_1st"},
+                    {"type"="tab", "template"="myplugin_second_tab.jinja2", "suffix"="_2nd"}
+                ]
+                ```
 
-                  return [
-                      dict(type="tab", template="myplugin_first_tab_jinja2", suffix="_1st"),
-                      dict(type="tab", template="myplugin_second_tab_jinja2", suffix="_2nd")
-                  ]
+                then the generated component identifier will be `plugin_myplugin_1st` and
+                `plugin_myplugin_2nd` (and the divs will be `tab_plugin_myplugin_1st` and
+                `tab_plugin_myplugin_2nd`).
 
-               then the generated component identifier will be `plugin_myplugin_1st` and `plugin_myplugin_2nd`
-               (and the divs will be `tab_plugin_myplugin_1st` and `tab_plugin_myplugin_2nd`).
+        `div`
+        :   Id for the div containing the component. If not provided, defaults to
+            `<type>_plugin_<plugin identifier>` plus the `suffix` if provided or required.
 
-           * - div
-             - Id for the div containing the component. If not provided, defaults to `<type>_plugin_<plugin identifier>` plus
-               the `suffix` if provided or required.
-           * - replaces
-             - Id of the component this one replaces, might be either one of the core components or a component
-               provided by another plugin. A list of the core component identifiers can be found
-               :ref:`in the configuration documentation <sec-configuration-config_yaml-appearance>`. The identifiers of
-               other plugin components always follow the format described above.
-           * - custom_bindings
-             - A boolean value indicating whether the default view model should be bound to the component (`false`)
-               or if a custom binding will be used by the plugin (`true`, default).
-           * - data_bind
-             - Additional knockout data bindings to apply to the component, can be used to add further behaviour to
-               the container based on internal state if necessary.
-           * - classes
-             - Additional classes to apply to the component, as a list of individual classes
-               (e.g. `classes=["myclass", "myotherclass"]`) which will be joined into the correct format by the template engine.
-           * - styles
-             - Additional CSS styles to apply to the component, as a list of individual declarations
-               (e.g. `styles=["color: red", "display: block"]`) which will be joined into the correct format by the template
-               engine.
+        `replaces`
+        :   Id of the component this one replaces, might be either one of the core
+            components or a component provided by another plugin. A list of the core
+            component identifiers can be found [in the configuration documentation](/user-guide/configuration/config.yaml/#appearance).
+            The identifiers of other plugin components always follow the format described
+            above.
+
+        `custom_bindings`
+        :   A boolean value indicating whether the default view model should be bound to
+            the component (`false`) or if a custom binding will be used by the plugin
+            (`true`, default).
+
+        `data_bind`
+        :   Additional knockout data bindings to apply to the component, can be used to
+            add further behaviour to the container based on internal state if necessary.
+
+        `classes`
+        :   Additional classes to apply to the component, as a list of individual classes
+            (e.g. `classes=["myclass", "myotherclass"]`) which will be joined into the
+            correct format by the template engine.
+
+        `styles`
+        :   Additional CSS styles to apply to the component, as a list of individual
+            declarations (e.g. `styles=["color: red", "display: block"]`) which will be
+            joined into the correct format by the template engine.
 
         Further keys to be included in the dictionary depend on the type:
 
         `sidebar` type
+        :   `icon`
+            :   Icon to use for the sidebar header, should be the full name of a Font
+                Awesome icon including the `fas`/`far`/`fab` prefix, eg. `fas fa-plus`.
 
-           .. list-table::
-              :widths: 5 95
+            `template_header`
+            :   Additional template to include in the head section of the sidebar item.
+                For an example of this, see the additional options included in the
+                "Files" section.
 
-              * - icon
-                - Icon to use for the sidebar header, should be the full name of a Font Awesome icon including the `fas`/`far`/`fab` prefix, eg. `fas fa-plus`.
-              * - template_header
-                - Additional template to include in the head section of the sidebar item. For an example of this, see the additional
-                  options included in the "Files" section.
-              * - classes_wrapper
-                - Like `classes` but only applied to the whole wrapper around the sidebar box.
-              * - classes_content
-                - Like `classes` but only applied to the content pane itself.
-              * - styles_wrapper
-                - Like `styles` but only applied to the whole wrapper around the sidebar box.
-              * - styles_content
-                - Like `styles` but only applied to the content pane itself
+            `classes_wrapper`
+            :   Like `classes` but only applied to the whole wrapper around the sidebar box.
+
+            `classes_content`
+            :   Like `classes` but only applied to the content pane itself.
+
+            `styles_wrapper`
+            :   Like `styles` but only applied to the whole wrapper around the sidebar box.
+
+            `styles_content`
+            :   Like `styles` but only applied to the content pane itself
 
         `tab` type and `settings` type
+        :   `classes_link`
+            :   Like `classes` but only applied to the link in the navigation.
 
-           .. list-table::
-              :widths: 5 95
+            `classes_content`
+            :   Like `classes` but only applied to the content pane itself.
 
-              * - classes_link
-                - Like `classes` but only applied to the link in the navigation.
-              * - classes_content
-                - Like `classes` but only applied to the content pane itself.
-              * - styles_link
-                - Like `styles` but only applied to the link in the navigation.
-              * - styles_content
-                - Like `styles` but only applied to the content pane itself.
+            `styles_link`
+            :   Like `styles` but only applied to the link in the navigation.
+
+            `styles_content`
+            :   Like `styles` but only applied to the content pane itself.
 
         `wizard` type
+        :   `mandatory`
+            :   Whether the wizard step is mandatory (True) or not (False). Optional,
+                defaults to False. If set to True, OctoPrint will sort visually mark
+                the step as mandatory in the UI (bold in the navigation and a little
+                alert) and also sort it into the first half.
 
-           .. list-table::
-              :widths: 5 95
+        !!! note
 
-              * - mandatory
-                - Whether the wizard step is mandatory (True) or not (False). Optional,
-                  defaults to False. If set to True, OctoPrint will sort visually mark
-                  the step as mandatory in the UI (bold in the navigation and a little
-                  alert) and also sort it into the first half.
+            As already outlined above, each template type has a default template name (i.e. the default navbar template
+            of a plugin is called `<plugin identifier>_navbar.jinja2`), which may be overridden using the template configuration.
+            If a plugin needs to include more than one template of a given type, it needs to provide an entry for each of
+            those, since the implicit default template will only be included automatically if no other templates of that
+            type are defined.
 
-        .. note::
+            Example: If you have a plugin that injects two tab components, one defined in the template file
+            `myplugin_tab.jinja2` (the default template) and one in the template `myplugin_othertab.jinja2`, you
+            might be tempted to just return the following configuration since one your templates is named by the default
+            template name:
 
-           As already outlined above, each template type has a default template name (i.e. the default navbar template
-           of a plugin is called `<plugin identifier>_navbar.jinja2`), which may be overridden using the template configuration.
-           If a plugin needs to include more than one template of a given type, it needs to provide an entry for each of
-           those, since the implicit default template will only be included automatically if no other templates of that
-           type are defined.
+            ``` python
+            return [
+                {"type"="tab", "template"="myplugin_othertab.jinja2"}
+            ]
+            ```
 
-           Example: If you have a plugin that injects two tab components, one defined in the template file
-           `myplugin_tab.jinja2` (the default template) and one in the template `myplugin_othertab.jinja2`, you
-           might be tempted to just return the following configuration since one your templates is named by the default
-           template name:
+            This will only include the tab defined in `myplugin_othertab.jinja2` though, `myplugin_tab.jinja2` will
+            not be included automatically since the presence of a definition for the `tab` type overrides the automatic
+            injection of the default template. You'll have to include it explicitly:
 
-           .. code-block:: python
+            ``` python
+            return [
+                {"type"="tab", "template"="myplugin_tab.jinja2"}
+                {"type"="tab", "template"="myplugin_othertab.jinja2"}
+            ]
+            ```
 
-              return [
-                  dict(type="tab", template="myplugin_othertab.jinja2")
-              ]
-
-           This will only include the tab defined in `myplugin_othertab.jinja2` though, `myplugin_tab.jinja2` will
-           not be included automatically since the presence of a definition for the `tab` type overrides the automatic
-           injection of the default template. You'll have to include it explicitly:
-
-           .. code-block:: python
-
-              return [
-                  dict(type="tab", template="myplugin_tab.jinja2"),
-                  dict(type="tab", template="myplugin_othertab.jinja2")
-              ]
-
-        :return list: a list containing the configuration options for the plugin's injected templates
+        Returns:
+            (list): a list containing the configuration options for the plugin's injected templates
         """
         return []
 
@@ -543,7 +590,8 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         Defines additional template variables to include into the template renderer. Variable names will be prefixed
         with `plugin_<plugin identifier>_`.
 
-        :return dict: a dictionary containing any additional template variables to include in the renderer
+        Returns:
+            (dict): a dictionary containing any additional template variables to include in the renderer
         """
         return {}
 
@@ -552,7 +600,8 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         Defines the folder where the plugin stores its templates. Override this if your plugin stores its templates at
         some other place than the `templates` sub folder in the plugin base directory.
 
-        :return string: the absolute path to the folder where the plugin stores its jinja2 templates
+        Returns:
+            (str): the absolute path to the folder where the plugin stores its jinja2 templates
         """
         import os
 
@@ -561,34 +610,32 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
 
 class UiPlugin(OctoPrintPlugin, SortablePlugin):
     """
-    The `UiPlugin` mixin allows plugins to completely replace the UI served
-    by OctoPrint when requesting the main page hosted at `/`.
+    The `UiPlugin` mixin allows plugins to completely replace the UI served by OctoPrint
+    when requesting the main page hosted at `/`.
 
-    OctoPrint will query whether your mixin implementation will handle a
-    provided request by calling :meth:`~octoprint.plugin.UiPlugin.will_handle_ui` with the Flask
-    `Request <http://flask.pocoo.org/docs/0.10/api/#flask.Request>`_ object as
-    parameter. If you plugin returns `True` here, OctoPrint will next call
-    :meth:`~octoprint.plugin.UiPlugin.on_ui_render` with a few parameters like
-    - again - the Flask Request object and the render keyword arguments as
-    used by the default OctoPrint web interface. For more information see below.
+    OctoPrint will query whether your mixin implementation will handle a provided request
+    by calling `will_handle_ui` with the
+    [Flask Request](http://flask.pocoo.org/docs/0.10/api/#flask.Request) object as
+    parameter. If you plugin returns `True` here, OctoPrint will next call `on_ui_render`
+    with a few parameters like -- again -- the Flask Request object and the render
+    keyword arguments as used by the default OctoPrint web interface. For more information
+    see below.
 
-    There are two methods used in order to allow for caching of the actual
-    response sent to the client. Whatever a plugin implementation returns
-    from the call to its :meth:`~octoprint.plugin.UiPlugin.on_ui_render` method
-    will be cached server side. The cache will be emptied in case of explicit
-    no-cache headers sent by the client, or if the `_refresh` query parameter
-    on the request exists and is set to `true`. To prevent caching of the
-    response altogether, a plugin may set no-cache headers on the returned
-    response as well.
+    There are two methods used in order to allow for caching of the actual response sent
+    to the client. Whatever a plugin implementation returns from the call to its
+    `on_ui_render` method will be cached server side. The cache will be emptied in case
+    of explicit no-cache headers sent by the client, or if the `_refresh` query parameter
+    on the request exists and is set to `true`. To prevent caching of the response
+    altogether, a plugin may set no-cache headers on the returned response as well.
 
-    `UiPlugin` is a :class:`~octoprint.plugin.core.SortablePlugin` with a sorting context
-    for :meth:`~octoprint.plugin.UiPlugin.will_handle_ui`. The first plugin to return `True`
-    for :meth:`~octoprint.plugin.UiPlugin.will_handle_ui` will be the one whose ui will be used,
-    no further calls to :meth:`~octoprint.plugin.UiPlugin.on_ui_render` will be performed.
+    `UiPlugin` is a [SortablePlugin][octoprint.plugin.core.SortablePlugin] with a sorting
+    context for `UiPlugin.will_handle_ui`. The first plugin to return `True` for
+    `will_handle_ui` will be the one whose UI will be used, no further calls to
+    `on_ui_render` will be performed.
 
-    If implementations want to serve custom templates in the :meth:`~octoprint.plugin.UiPlugin.on_ui_render`
-    method it is recommended to also implement the :class:`~octoprint.plugin.TemplatePlugin`
-    mixin.
+    If implementations want to serve custom templates in the
+    `on_ui_render` method it is recommended to also implement the
+    [TemplatePlugin mixin][octoprint.plugin.types.TemplatePlugin].
 
     **Example**
 
@@ -1465,63 +1512,68 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
 
 class SettingsPlugin(OctoPrintPlugin):
     """
-    Including the `SettingsPlugin` mixin allows plugins to store and retrieve their own settings within OctoPrint's
-    configuration.
+    Including the `SettingsPlugin` mixin allows plugins to store and retrieve their own
+    settings within OctoPrint's configuration.
 
-    Plugins including the mixing will get injected an additional property `self._settings` which is an instance of
-    [`PluginSettingsManager`][octoprint.plugin.PluginSettings] already properly initialized for use by the plugin. In order for the manager to
-    know about the available settings structure and default values upon initialization, implementing plugins will need
-    to provide a dictionary with the plugin's default settings through overriding the method :func:`get_settings_defaults`.
-    The defined structure will then be available to access through the settings manager available as `self._settings`.
+    Plugins including the mixing will get injected an additional property `self._settings`
+    which is an instance of [`PluginSettingsManager`][octoprint.plugin.PluginSettings]
+    already properly initialized for use by the plugin. In order for the manager to know
+    about the available settings structure and default values upon initialization,
+    implementing plugins will need to provide a dictionary with the plugin's default
+    settings through overriding the method `get_settings_defaults`. The defined structure
+    will then be available to access through the settings manager available as
+    `self._settings`.
 
-    If your plugin needs to react to the change of specific configuration values on the fly, e.g. to adjust the log level
-    of a logger when the user changes a corresponding flag via the settings dialog, you can override the
-    :func:`on_settings_save` method and wrap the call to the implementation from the parent class with retrieval of the
-    old and the new value and react accordingly.
+    If your plugin needs to react to the change of specific configuration values on the
+    fly, e.g. to adjust the log level of a logger when the user changes a corresponding
+    flag via the settings dialog, you can override the `on_settings_save` method and wrap
+    the call to the implementation from the parent class with retrieval of the old and
+    the new value and react accordingly.
 
-    Example:
+    !!! example
 
-    .. code-block:: python
+        ```python
+        import octoprint.plugin
 
-       import octoprint.plugin
+        class MySettingsPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.StartupPlugin):
+            def get_settings_defaults(self):
+                return dict(
+                    some_setting="foo",
+                    some_value=23,
+                    sub=dict(
+                        some_flag=True
+                    )
+                )
 
-       class MySettingsPlugin(octoprint.plugin.SettingsPlugin, octoprint.plugin.StartupPlugin):
-           def get_settings_defaults(self):
-               return dict(
-                   some_setting="foo",
-                   some_value=23,
-                   sub=dict(
-                       some_flag=True
-                   )
-               )
+            def on_settings_save(self, data):
+                old_flag = self._settings.get_boolean(["sub", "some_flag"])
 
-           def on_settings_save(self, data):
-               old_flag = self._settings.get_boolean(["sub", "some_flag"])
+                octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
-               octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+                new_flag = self._settings.get_boolean(["sub", "some_flag"])
+                if old_flag != new_flag:
+                    self._logger.info("sub.some_flag changed from {old_flag} to {new_flag}".format(**locals()))
 
-               new_flag = self._settings.get_boolean(["sub", "some_flag"])
-               if old_flag != new_flag:
-                   self._logger.info("sub.some_flag changed from {old_flag} to {new_flag}".format(**locals()))
+            def on_after_startup(self):
+                some_setting = self._settings.get(["some_setting"])
+                some_value = self._settings.get_int(["some_value"])
+                some_flag = self._settings.get_boolean(["sub", "some_flag"])
+                self._logger.info("some_setting = {some_setting}, some_value = {some_value}, sub.some_flag = {some_flag}".format(**locals())
 
-           def on_after_startup(self):
-               some_setting = self._settings.get(["some_setting"])
-               some_value = self._settings.get_int(["some_value"])
-               some_flag = self._settings.get_boolean(["sub", "some_flag"])
-               self._logger.info("some_setting = {some_setting}, some_value = {some_value}, sub.some_flag = {some_flag}".format(**locals())
+        __plugin_implementation__ = MySettingsPlugin()
+        ```
 
-       __plugin_implementation__ = MySettingsPlugin()
-
-    Of course, you are always free to completely override both :func:`on_settings_load` and :func:`on_settings_save` if the
-    default implementations do not fit your requirements.
+    Of course, you are always free to completely override both `on_settings_load` and
+    `on_settings_save` if the default implementations do not fit your requirements.
 
 
-    .. warning::
+    !!! warning
 
-       Make sure to protect sensitive information stored by your plugin that only logged in administrators (or users)
-       should have access to via :meth:`~octoprint.plugin.SettingsPlugin.get_settings_restricted_paths`. OctoPrint will
-       return its settings on the REST API even to anonymous clients, but will filter out fields it knows are restricted,
-       therefore you **must** make sure that you specify sensitive information accordingly to limit access as required!
+        Make sure to protect sensitive information stored by your plugin that only logged
+        in administrators (or users) should have access to via `get_settings_restricted_paths`.
+        OctoPrint will return its settings on the REST API even to anonymous clients, but
+        will filter out fields it knows are restricted, therefore you **must** make sure
+        that you specify sensitive information accordingly to limit access as required!
     """
 
     config_version_key = "_config_version"
@@ -1531,8 +1583,9 @@ class SettingsPlugin(OctoPrintPlugin):
     def __init__(self):
         self._settings = None
         """
-        The :class:`~octoprint.plugin.PluginSettings` instance to use for accessing the plugin's settings. Injected by
-        the plugin core system upon initialization of the implementation.
+        The [`PluginSettings`][octoprint.plugin.PluginSettings] instance to use for
+        accessing the plugin's settings. Injected by the plugin core system upon
+        initialization of the implementation.
         """
 
     def on_settings_load(self):
@@ -1541,22 +1594,23 @@ class SettingsPlugin(OctoPrintPlugin):
         all plugins. Override this if you want to inject additional settings properties that are not stored within
         OctoPrint's configuration.
 
-        .. note::
+        !!! note
 
-           The default implementation will return your plugin's settings as is, so just in the structure and in the types
-           that are currently stored in OctoPrint's configuration.
+            The default implementation will return your plugin's settings as is, so just in the structure and in the types
+            that are currently stored in OctoPrint's configuration.
 
-           If you need more granular control here, e.g. over the used data types, you'll need to override this method
-           and iterate yourself over all your settings, using the proper retriever methods on the settings manager
-           to retrieve the data in the correct format.
+            If you need more granular control here, e.g. over the used data types, you'll need to override this method
+            and iterate yourself over all your settings, using the proper retriever methods on the settings manager
+            to retrieve the data in the correct format.
 
-           The default implementation will also replace any paths that have been restricted by your plugin through
-           :func:`~octoprint.plugin.SettingsPlugin.get_settings_restricted_paths` with either the provided
-           default value (if one was provided), an empty dictionary (as fallback for restricted dictionaries), an
-           empty list (as fallback for restricted lists) or `None` values where necessary.
-           Make sure to do your own restriction if you decide to fully overload this method.
+            The default implementation will also replace any paths that have been restricted by your plugin through
+            [`get_settings_restricted_paths`][octoprint.plugin.SettingsPlugin.get_settings_restricted_paths] with either the provided
+            default value (if one was provided), an empty dictionary (as fallback for restricted dictionaries), an
+            empty list (as fallback for restricted lists) or `None` values where necessary.
+            Make sure to do your own restriction if you decide to fully overload this method.
 
-        :return: the current settings of the plugin, as a dictionary
+        Returns:
+            (dict): The current settings of the plugin, as a dictionary.
         """
         import copy
 
@@ -1633,21 +1687,21 @@ class SettingsPlugin(OctoPrintPlugin):
         from all plugins. Override this if you need to directly react to settings changes or want to extract
         additional settings properties that are not stored within OctoPrint's configuration.
 
-        .. note::
+        !!! note
 
-           The default implementation will persist your plugin's settings as is, so just in the structure and in the
-           types that were received by the Settings API view. Values identical to the default settings values
-           will *not* be persisted.
+            The default implementation will persist your plugin's settings as is, so just in the structure and in the
+            types that were received by the Settings API view. Values identical to the default settings values
+            will *not* be persisted.
 
-           If you need more granular control here, e.g. over the used data types, you'll need to override this method
-           and iterate yourself over all your settings, retrieving them (if set) from the supplied received `data`
-           and using the proper setter methods on the settings manager to persist the data in the correct format.
+            If you need more granular control here, e.g. over the used data types, you'll need to override this method
+            and iterate yourself over all your settings, retrieving them (if set) from the supplied received `data`
+            and using the proper setter methods on the settings manager to persist the data in the correct format.
 
         Arguments:
             data (dict): The settings dictionary to be saved for the plugin
 
         Returns:
-            dict: The settings that differed from the defaults and were actually saved.
+            (dict): The settings that differed from the defaults and were actually saved.
         """
         import octoprint.util
 
@@ -1701,67 +1755,71 @@ class SettingsPlugin(OctoPrintPlugin):
         Return a `dict` with one of the following keys, mapping to a list of paths (as tuples or lists of
         the path elements) for which to restrict access via the REST API accordingly.
 
-           * An :py:class:`~octoprint.access.permissions.OctoPrintPermission` instance: Paths will only be available on the REST API for users with the permission
-           * `admin`: Paths will only be available on the REST API for users with admin rights (any user with the SETTINGS permission)
-           * `user`: Paths will only be available on the REST API when accessed as a logged in user
+           * An [`OctoPrintPermission`][octoprint.access.permissions.OctoPrintPermission]
+             instance: Paths will only be available on the REST API for users with the
+             permission
+           * `admin`: Paths will only be available on the REST API for users with admin
+             rights (any user with the SETTINGS permission)
+           * `user`: Paths will only be available on the REST API when accessed as a
+             logged in user
            * `never`: Paths will never be returned on the API
 
-        Example:
+        !!! example
 
-        .. code-block:: python
+            ```python
+            def get_settings_defaults(self):
+                return dict(some=dict(admin_only=dict(path="path", foo="foo"),
+                                      user_only=dict(path="path", bar="bar")),
+                            another=dict(admin_only=dict(path="path"),
+                                         field="field"),
+                            path=dict(to=dict(never=dict(return="return"))),
+                            the=dict(webcam=dict(data="webcam")))
 
-           def get_settings_defaults(self):
-               return dict(some=dict(admin_only=dict(path="path", foo="foo"),
-                                     user_only=dict(path="path", bar="bar")),
-                           another=dict(admin_only=dict(path="path"),
-                                        field="field"),
-                           path=dict(to=dict(never=dict(return="return"))),
-                           the=dict(webcam=dict(data="webcam")))
+            def get_settings_restricted_paths(self):
+                from octoprint.access.permissions import Permissions
+                return {'admin':[["some", "admin_only", "path"], ["another", "admin_only", "path"],],
+                        'user':[["some", "user_only", "path"],],
+                        'never':[["path", "to", "never", "return"],],
+                        Permissions.WEBCAM:[["the", "webcam", "data"],]}
 
-           def get_settings_restricted_paths(self):
-               from octoprint.access.permissions import Permissions
-               return {'admin':[["some", "admin_only", "path"], ["another", "admin_only", "path"],],
-                       'user':[["some", "user_only", "path"],],
-                       'never':[["path", "to", "never", "return"],],
-                       Permissions.WEBCAM:[["the", "webcam", "data"],]}
+            # this will make the plugin return settings on the REST API like this for an anonymous user
+            #
+            #     dict(some=dict(admin_only=dict(path=None, foo="foo"),
+            #                    user_only=dict(path=None, bar="bar")),
+            #          another=dict(admin_only=dict(path=None),
+            #                       field="field"),
+            #          path=dict(to=dict(never=dict(return=None))),
+            #          the=dict(webcam=dict(data=None)))
+            #
+            # like this for a logged in user without the webcam permission
+            #
+            #     dict(some=dict(admin_only=dict(path=None, foo="foo"),
+            #                    user_only=dict(path="path", bar="bar")),
+            #          another=dict(admin_only=dict(path=None),
+            #                       field="field"),
+            #          path=dict(to=dict(never=dict(return=None))),
+            #          the=dict(webcam=dict(data=None)))
+            #
+            # like this for a logged in user with the webcam permission
+            #
+            #     dict(some=dict(admin_only=dict(path=None, foo="foo"),
+            #                    user_only=dict(path="path", bar="bar")),
+            #          another=dict(admin_only=dict(path=None),
+            #                       field="field"),
+            #          path=dict(to=dict(never=dict(return=None))),
+            #          the=dict(webcam=dict(data="webcam")))
+            #
+            # and like this for an admin user
+            #
+            #     dict(some=dict(admin_only=dict(path="path", foo="foo"),
+            #                    user_only=dict(path="path", bar="bar")),
+            #          another=dict(admin_only=dict(path="path"),
+            #                       field="field"),
+            #          path=dict(to=dict(never=dict(return=None))),
+            #          the=dict(webcam=dict(data="webcam")))
+            ```
 
-           # this will make the plugin return settings on the REST API like this for an anonymous user
-           #
-           #     dict(some=dict(admin_only=dict(path=None, foo="foo"),
-           #                    user_only=dict(path=None, bar="bar")),
-           #          another=dict(admin_only=dict(path=None),
-           #                       field="field"),
-           #          path=dict(to=dict(never=dict(return=None))),
-           #          the=dict(webcam=dict(data=None)))
-           #
-           # like this for a logged in user without the webcam permission
-           #
-           #     dict(some=dict(admin_only=dict(path=None, foo="foo"),
-           #                    user_only=dict(path="path", bar="bar")),
-           #          another=dict(admin_only=dict(path=None),
-           #                       field="field"),
-           #          path=dict(to=dict(never=dict(return=None))),
-           #          the=dict(webcam=dict(data=None)))
-           #
-           # like this for a logged in user with the webcam permission
-           #
-           #     dict(some=dict(admin_only=dict(path=None, foo="foo"),
-           #                    user_only=dict(path="path", bar="bar")),
-           #          another=dict(admin_only=dict(path=None),
-           #                       field="field"),
-           #          path=dict(to=dict(never=dict(return=None))),
-           #          the=dict(webcam=dict(data="webcam")))
-           #
-           # and like this for an admin user
-           #
-           #     dict(some=dict(admin_only=dict(path="path", foo="foo"),
-           #                    user_only=dict(path="path", bar="bar")),
-           #          another=dict(admin_only=dict(path="path"),
-           #                       field="field"),
-           #          path=dict(to=dict(never=dict(return=None))),
-           #          the=dict(webcam=dict(data="webcam")))
-
-        .. versionadded:: 1.2.17
+        {{ version_added("1.2.17") }}
         """
         return {}
 
@@ -1775,31 +1833,31 @@ class SettingsPlugin(OctoPrintPlugin):
         (hierarchically) to a transform function which will get the value to transform as only input and should return
         the transformed value.
 
-        Example:
+        !!! example
 
-        .. code-block:: python
+            ```python
+            def get_settings_defaults(self):
+                return dict(some_key="Some_Value", some_other_key="Some_Value")
 
-           def get_settings_defaults(self):
-               return dict(some_key="Some_Value", some_other_key="Some_Value")
+            def get_settings_preprocessors(self):
+                return dict(some_key=lambda x: x.upper()),        # getter preprocessors
+                       dict(some_other_key=lambda x: x.lower())   # setter preprocessors
 
-           def get_settings_preprocessors(self):
-               return dict(some_key=lambda x: x.upper()),        # getter preprocessors
-                      dict(some_other_key=lambda x: x.lower())   # setter preprocessors
+            def some_method(self):
+                # getting the value for "some_key" should turn it to upper case
+                assert self._settings.get(["some_key"]) == "SOME_VALUE"
 
-           def some_method(self):
-               # getting the value for "some_key" should turn it to upper case
-               assert self._settings.get(["some_key"]) == "SOME_VALUE"
+                # the value for "some_other_key" should be left alone
+                assert self._settings.get(["some_other_key"] = "Some_Value"
 
-               # the value for "some_other_key" should be left alone
-               assert self._settings.get(["some_other_key"] = "Some_Value"
-
-               # setting a value for "some_other_key" should cause the value to first be turned to lower case
-               self._settings.set(["some_other_key"], "SOME_OTHER_VALUE")
-               assert self._settings.get(["some_other_key"]) == "some_other_value"
+                # setting a value for "some_other_key" should cause the value to first be turned to lower case
+                self._settings.set(["some_other_key"], "SOME_OTHER_VALUE")
+                assert self._settings.get(["some_other_key"]) == "some_other_value"
+            ```
 
         Returns:
-            (dict, dict): A tuple consisting of two dictionaries, the first being the plugin's preprocessors for
-            getters, the second the preprocessors for setters
+            (Tuple[dict, dict]): A tuple consisting of two dictionaries, the first being the plugin's preprocessors for
+                getters, the second the preprocessors for setters
         """
         return {}, {}
 
@@ -1812,9 +1870,10 @@ class SettingsPlugin(OctoPrintPlugin):
         config.yaml.
 
         Returns:
-            int or None: an int signifying the current settings format, should be incremented by plugins whenever there
-            are backwards incompatible changes. Returning None here disables the version tracking for the
-            plugin's configuration.
+            (Optional[int]): an `int` signifying the current settings format, should be
+                incremented by plugins whenever there are backwards incompatible changes.
+                Returning None here disables the version tracking for the plugin's
+                configuration.
         """
         return None
 
@@ -1828,21 +1887,21 @@ class SettingsPlugin(OctoPrintPlugin):
         Your plugin's implementation should take care of migrating any data by utilizing self._settings. OctoPrint
         will take care of saving any changes to disk by calling `self._settings.save()` after returning from this method.
 
-        This method will be called before your plugin's :func:`on_settings_initialized` method, with all injections already
+        This method will be called before your plugin's `on_settings_initialized` method, with all injections already
         having taken place. You can therefore depend on the configuration having been migrated by the time
-        :func:`on_settings_initialized` is called.
+        `on_settings_initialized` is called.
 
         Arguments:
-            target (int): The settings format version the plugin requires, this should always be the same value as
-                          returned by :func:`get_settings_version`.
-            current (int or None): The settings format version as currently stored in config.yaml. May be None if
-                          no version information can be found.
+            target (int): The settings format version the plugin requires, this should
+                always be the same value as returned by `get_settings_version`.
+            current (Optional[int]): The settings format version as currently stored in
+                `config.yaml`. May be `None` if no version information can be found.
         """
         pass
 
     def on_settings_cleanup(self):
         """
-        Called after migration and initialization but before call to :func:`on_settings_initialized`.
+        Called after migration and initialization but before call to `on_settings_initialized`.
 
         Plugins may overwrite this method to perform additional clean up tasks.
 
@@ -1850,7 +1909,7 @@ class SettingsPlugin(OctoPrintPlugin):
         the differences to the defaults (in case the current data was persisted with an older
         version of OctoPrint that still duplicated default data).
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         import octoprint.util
         from octoprint.settings import NoSuchSettingsPath
@@ -1889,8 +1948,8 @@ class SettingsPlugin(OctoPrintPlugin):
 
     def on_settings_initialized(self):
         """
-        Called after the settings have been initialized and - if necessary - also been migrated through a call to
-        func:`on_settings_migrate`.
+        Called after the settings have been initialized and -- if necessary -- also been
+        migrated through a call to `on_settings_migrate`.
 
         This method will always be called after the `initialize` method.
         """
@@ -2160,15 +2219,16 @@ class SlicerPlugin(OctoPrintPlugin):
         Cancels the slicing to the indicated file.
 
         Arguments:
-            machinecode_path (str): The absolute path to the machine code file to which to stop slicing to.
+            machinecode_path (str): The absolute path to the machine code file to which
+                to stop slicing to.
         """
         pass
 
 
 class ProgressPlugin(OctoPrintPlugin):
     """
-    Via the `ProgressPlugin` mixing plugins can let themselves be called upon progress in print jobs or slicing jobs,
-    limited to minimally 1% steps.
+    Via the `ProgressPlugin` mixing plugins can let themselves be called upon progress in
+    print jobs or slicing jobs, limited to minimally 1% steps.
     """
 
     # noinspection PyMethodMayBeStatic
@@ -2176,9 +2236,10 @@ class ProgressPlugin(OctoPrintPlugin):
         """
         Called by OctoPrint on minimally 1% increments during a running print job.
 
-        :param string storage:  Location of the file
-        :param string path:     Path of the file
-        :param int progress:    Current progress as a value between 0 and 100
+        Arguments:
+            storage (str): Location of the file.
+            path (str): Path of the file in the storage.
+            progress (int): Current progress as a value between 0 and 100.
         """
         pass
 
@@ -2195,11 +2256,12 @@ class ProgressPlugin(OctoPrintPlugin):
         """
         Called by OctoPrint on minimally 1% increments during a running slicing job.
 
-        :param string slicer:               Key of the slicer reporting the progress
-        :param string source_location:      Location of the source file
-        :param string source_path:          Path of the source file
-        :param string destination_location: Location the destination file
-        :param string destination_path:     Path of the destination file
-        :param int progress:                Current progress as a value between 0 and 100
+        Arguments:
+            slicer (str): Key of the slicer reporting the progress.
+            source_location (str): Location of the source file.
+            source_path (str): Path of the source file in the source location.
+            destination_location (str): Location of the destination file.
+            destination_path (str): Path of the destination file in the destination location.
+            progress (int): Current progress as a value between 0 and 100.
         """
         pass
