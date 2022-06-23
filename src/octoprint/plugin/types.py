@@ -617,7 +617,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
     by calling `will_handle_ui` with the
     [Flask Request](http://flask.pocoo.org/docs/0.10/api/#flask.Request) object as
     parameter. If you plugin returns `True` here, OctoPrint will next call `on_ui_render`
-    with a few parameters like -- again -- the Flask Request object and the render
+    with a few parameters like - again - the Flask Request object and the render
     keyword arguments as used by the default OctoPrint web interface. For more information
     see below.
 
@@ -643,16 +643,72 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
     only exemplary) UI if the requesting client has a UserAgent string hinting
     at it being a mobile device:
 
-    .. onlineinclude:: https://raw.githubusercontent.com/OctoPrint/Plugin-Examples/master/dummy_mobile_ui/__init__.py
-       :tab-width: 4
-       :caption: `dummy_mobile_ui/__init__.py <https://github.com/OctoPrint/Plugin-Examples/blob/master/dummy_mobile_ui/__init__.py>`_
+    ``` python title="dummy_mobile_ui/__init__py"
 
-    .. onlineinclude:: https://raw.githubusercontent.com/OctoPrint/Plugin-Examples/master/dummy_mobile_ui/templates/dummy_mobile_ui_index.jinja2
-       :tab-width: 4
-       :caption: `dummy_mobile_ui/templates/dummy_mobile_ui_index.jinja2 <https://github.com/OctoPrint/Plugin-Examples/blob/master/dummy_mobile_ui/templates/dummy_mobile_ui_index.jinja2>`_
+    # coding=utf-8
+    from __future__ import absolute_import
+
+    import octoprint.plugin
+
+    class DummyMobileUiPlugin(octoprint.plugin.UiPlugin,
+                            octoprint.plugin.TemplatePlugin):
+
+        def will_handle_ui(self, request):
+            # returns True if the User Agent sent by the client matches one of
+            # the User Agent strings known for any of the platforms android, ipad
+            # or iphone
+            return request.user_agent and \
+                request.user_agent.platform in ("android", "ipad", "iphone")
+
+        def on_ui_render(self, now, request, render_kwargs):
+            # if will_handle_ui returned True, we will now render our custom index
+            # template, using the render_kwargs as provided by OctoPrint
+            from flask import make_response, render_template
+            return make_response(render_template("dummy_mobile_ui_index.jinja2",
+                                                 **render_kwargs))
+
+    __plugin_name__ = "Dummy Mobile UI"
+    __plugin_pythoncompat__ = ">=2.7,<4"
+    __plugin_implementation__ = DummyMobileUiPlugin()
+    ```
+
+    ``` jinja title="dummy_mobile_ui/templates/dummy_mobile_ui_index.jinja2"
+
+    <html>
+        <head>
+            <title>Dummy Mobile OctoPrint UI</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+        </head>
+        <body>
+            <h1>Dummy Mobile OctoPrint UI</h1>
+
+            <p>
+                Well hello there. Sadly, this is only a placeholder page used to
+                demonstrate how UiPlugins work. Hence the "Dummy" in the name.
+                Hope you are not too disappointed :)
+            </p>
+
+            <p>
+                Some data from the <code>render_kwargs</code> passed to this
+                template:
+            </p>
+
+            <ul>
+                <!--
+                We can include any render keywords arguments by their name,
+                using the regular Jinja templating functionality.
+                -->
+                <li>Version: {{ display_version }}</li>
+                <li>Debug: {{ debug }}</li>
+                <li>Template Count: {{ templates|length }}</li>
+                <li>Installed Plugins: {{ pluginNames|join(", ") }}</li>
+            </ul>
+        </body>
+    </html>
+    ```
 
     Try installing the above plugin `dummy_mobile_ui` (also available in the
-    `plugin examples repository <https://github.com/OctoPrint/Plugin-Examples/blob/master/dummy_mobile_ui>`_)
+    [plugin examples repository](https://github.com/OctoPrint/Plugin-Examples/blob/master/dummy_mobile_ui))
     into your OctoPrint instance. If you access it from a regular desktop browser,
     you should still see the default UI. However if you access it from a mobile
     device (make sure to not have that request the desktop version of pages!)
@@ -672,7 +728,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
 
     See below for details on this.
 
-    .. versionadded:: 1.3.0
+    {{ version_added('1.3.0') }}
     """
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
@@ -693,7 +749,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
                 object.
 
         Returns:
-            bool: `True` if the implementation will serve the request,
+            (bool): `True` if the implementation will serve the request,
                 `False` otherwise.
         """
         return False
@@ -702,13 +758,19 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
     def on_ui_render(self, now, request, render_kwargs):
         """
         Called by OctoPrint to retrieve the response to send to the client
-        for the `request` to `/`. Only called if :meth:`~octoprint.plugin.UiPlugin.will_handle_ui`
+        for the `request` to `/`. Only called if `will_handle_ui`
         returned `True`.
 
         `render_kwargs` will be a dictionary (whose contents are cached) which
         will contain the following key and value pairs (note that not all
         key value pairs contained in the dictionary are listed here, only
         those you should depend on as a plugin developer at the current time):
+
+        | Name | Type | Description |
+        | ---- | ---- | ----------- |
+        | `debug` | `bool` | Whether the debug mode is enabled or not. |
+        | `firstRun` | `bool` | Whether the server is running for the first time or not. |
+        | `version` | `dict` | The version of OctoPrint. |
 
         .. list-table::
            :widths: 5 95
@@ -1328,41 +1390,41 @@ class SimpleApiPlugin(OctoPrintPlugin):
 class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
     """
     The `BlueprintPlugin` mixin allows plugins to define their own full fledged endpoints for whatever purpose,
-    be it a more sophisticated API than what is possible via the :class:`SimpleApiPlugin` or a custom web frontend.
+    be it a more sophisticated API than what is possible via the [`SimpleApiPlugin`][octoprint.plugin.types.SimpleApiPlugin] or a custom web frontend.
 
-    The mechanism at work here is `Flask's <http://flask.pocoo.org/>`_ own `Blueprint mechanism <http://flask.pocoo.org/docs/0.10/blueprints/>`_.
+    The mechanism at work here is [Flask's](http://flask.pocoo.org/) own [Blueprint mechanism](http://flask.pocoo.org/docs/0.10/blueprints/).
 
     The mixin automatically creates a blueprint for you that will be registered under `/plugin/<plugin identifier>/`.
-    All you need to do is decorate all of your view functions with the :func:`route` decorator,
-    which behaves exactly the same like Flask's regular `route` decorators. Example:
+    All you need to do is decorate all of your view functions with the `route` decorator,
+    which behaves exactly the same like Flask's regular `route` decorators.
 
-    .. code-block:: python
+    !!! Example
 
-       import octoprint.plugin
-       import flask
+        ``` python
+        import octoprint.plugin
+        import flask
 
-       class MyBlueprintPlugin(octoprint.plugin.BlueprintPlugin):
-           @octoprint.plugin.BlueprintPlugin.route("/echo", methods=["GET"])
-           def myEcho(self):
-               if not "text" in flask.request.values:
-                   abort(400, description="Expected a text to echo back.")
-               return flask.request.values["text"]
+        class MyBlueprintPlugin(octoprint.plugin.BlueprintPlugin):
+            @octoprint.plugin.BlueprintPlugin.route("/echo", methods=["GET"])
+            def myEcho(self):
+                if not "text" in flask.request.values:
+                    abort(400, description="Expected a text to echo back.")
+                return flask.request.values["text"]
 
-       __plugin_implementation__ = MyBlueprintPlugin()
+        __plugin_implementation__ = MyBlueprintPlugin()
+        ```
 
     Your blueprint will be published by OctoPrint under the base URL `/plugin/<plugin identifier>/`, so the above
-    example of a plugin with the identifier "myblueprintplugin" would be reachable under
+    example of a plugin with the identifier `myblueprintplugin` would be reachable under
     `/plugin/myblueprintplugin/echo`.
 
     Just like with regular blueprints you'll be able to create URLs via `url_for`, just use the prefix
     `plugin.<plugin identifier>.<method_name>`, e.g.:
 
-    .. code-block:: python
+    ``` python
+    flask.url_for("plugin.myblueprintplugin.myEcho") # will return "/plugin/myblueprintplugin/echo"
+    ```
 
-       flask.url_for("plugin.myblueprintplugin.myEcho") # will return "/plugin/myblueprintplugin/echo"
-
-
-    `BlueprintPlugin` implements :class:`~octoprint.plugins.core.RestartNeedingPlugin`.
     """
 
     @staticmethod
@@ -1371,8 +1433,8 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
         A decorator to mark view methods in your BlueprintPlugin subclass. Works just the same as Flask's
         own `route` decorator available on blueprints.
 
-        See `the documentation for flask.Blueprint.route <http://flask.pocoo.org/docs/0.10/api/#flask.Blueprint.route>`_
-        and `the documentation for flask.Flask.route <http://flask.pocoo.org/docs/0.10/api/#flask.Flask.route>`_ for more
+        See [the documentation for `flask.Blueprint.route`](http://flask.pocoo.org/docs/0.10/api/#flask.Blueprint.route)
+        and [the documentation for `flask.Flask.route`](http://flask.pocoo.org/docs/0.10/api/#flask.Flask.route) for more
         information.
         """
 
@@ -1395,11 +1457,12 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
         A decorator to mark errorhandlings methods in your BlueprintPlugin subclass. Works just the same as Flask's
         own `errorhandler` decorator available on blueprints.
 
-        See `the documentation for flask.Blueprint.errorhandler <http://flask.pocoo.org/docs/0.10/api/#flask.Blueprint.errorhandler>`_
-        and `the documentation for flask.Flask.errorhandler <http://flask.pocoo.org/docs/0.10/api/#flask.Flask.errorhandler>`_ for more
+        See [the documentation for `flask.Blueprint.errorhandler`](http://flask.pocoo.org/docs/0.10/api/#flask.Blueprint.errorhandler)
+        and [the documentation for `flask.Flask.errorhandler`](http://flask.pocoo.org/docs/0.10/api/#flask.Flask.errorhandler) for more
         information.
 
-        .. versionadded:: 1.3.0
+
+        {{ version_added('1.3.0') }}
         """
         from collections import defaultdict
 
@@ -1421,7 +1484,8 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
 
         This method will only be called once during server initialization.
 
-        :return: the blueprint ready to be registered with Flask
+        Returns
+            (flask.Blueprint) the blueprint ready to be registered with Flask
         """
 
         if hasattr(self, "_blueprint"):
@@ -1466,8 +1530,8 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
         `template_folder`, etc.
 
         Defaults to the blueprint's `static_folder` and `template_folder` to be set to the plugin's basefolder
-        plus `/static` or respectively `/templates`, or -- if the plugin also implements :class:`AssetPlugin` and/or
-        :class:`TemplatePlugin` -- the paths provided by `get_asset_folder` and `get_template_folder` respectively.
+        plus `/static` or respectively `/templates`, or - if the plugin also implements [`AssetPlugin`][octoprint.plugin.types.AssetPlugin] and/or
+        [`TemplatePlugin`][octoprint.plugin.types.TemplatePlugin] - the paths provided by `get_asset_folder` and `get_template_folder` respectively.
         """
         import os
 
@@ -1504,7 +1568,7 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
         calls, instead of the default HTML ones.
 
         Defaults to all endpoints under the blueprint. Limit this further as needed. E.g.,
-        if you only want your endpoints /foo, /foo/1 and /bar to be declared as API,
+        if you only want your endpoints `/foo`, `/foo/1` and `/bar` to be declared as API,
         return `["/foo", "/bar"]`. A match will be determined via startswith.
         """
         return [""]
@@ -1973,9 +2037,10 @@ class EventHandlerPlugin(OctoPrintPlugin):
         """
         Called by OctoPrint upon processing of a fired event on the platform.
 
-        .. warning::
+        !!! Warning
 
-           Do not perform long-running or even blocking operations in your implementation or you **will** block and break the server.
+            Do not perform long-running or even blocking operations in your
+            implementation or you **will** block and break the server.
 
         Arguments:
             event (str): The type of event that got fired, see :ref:`the list of events <sec-events-available_events>`
