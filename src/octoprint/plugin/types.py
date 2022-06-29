@@ -376,13 +376,13 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         plugin's JavaScript code.
 
     <figure markdown>
-        ![Template injection types in the main part of the interface](../../../../images/reference/octoprint/plugin/types/template-plugin-types-main.png)
-        <figcaption>Template injection types in the main part of the interface</figcaption>
+      ![Template injection types in the main part of the interface](../../../../images/reference/octoprint/plugin/types/template-plugin-types-main.png)
+      <figcaption>Template injection types in the main part of the interface</figcaption>
     </figure>
 
     <figure markdown>
-        ![Template injection types in the settings](../../../../images/reference/octoprint/plugin/types/template-plugin-types-settings.png)
-        <figcaption>Template injection types in the settings</figcaption>
+      ![Template injection types in the settings](../../../../images/reference/octoprint/plugin/types/template-plugin-types-settings.png)
+      <figcaption>Template injection types in the settings</figcaption>
     </figure>
 
     You can find an example for a simple plugin which injects navbar, tab and settings
