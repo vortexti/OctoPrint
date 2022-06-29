@@ -1,9 +1,9 @@
 """
 This module bundles all of OctoPrint's supported plugin implementation types as well as their common parent
-class, [OctoPrintPlugin][octoprint.plugin.core.OctoPrintPlugin].
+class, [`OctoPrintPlugin`][octoprint.plugin.OctoPrintPlugin].
 
 Please note that the plugin implementation types are documented in the section
-[Available plugin mixins](plugin-guide/mixins).
+[Available plugin mixins][plugin-guide.mixins].
 """
 
 __author__ = "Gina Häußge <osd@foosel.net>"
@@ -42,7 +42,7 @@ class OctoPrintPlugin(Plugin):
         _connectivity_checker (octoprint.util.connectivity.ConnectivityChecker): The [ConnectivityChecker][octoprint.util.connectivity.ConnectivityChecker] instance. Injected by the plugin core system upon
             initialization of the implementation.
         _data_folder (str): The path to the data folder of the plugin, to use for any data
-            it might have to persist. Should always be accessed through [get_plugin_data_folder][octoprint.plugin.types.OctoPrintPlugin.get_plugin_data_folder],
+            it might have to persist. Should always be accessed through [get_plugin_data_folder][octoprint.plugin.OctoPrintPlugin.get_plugin_data_folder],
             since that function will also ensure that the data folder actually exists
             and if not create it before returning it. Injected by the plugin core system
             upon initialization of the implementation.
@@ -100,7 +100,11 @@ class ReloadNeedingPlugin(Plugin):
 
 class EnvironmentDetectionPlugin(OctoPrintPlugin, RestartNeedingPlugin):
     """
-    .. versionadded:: 1.3.6
+    The `EnvironmentDetectionPlugin` mixin allows enrichting OctoPrint's environmental
+    information collections with additional data, and to react to successfully collected
+    environmental information.
+
+    {{ version_added('1.3.6') }}
     """
 
     def get_additional_environment(self):
@@ -115,8 +119,8 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
     The `StartupPlugin` allows hooking into the startup of OctoPrint. It can be used to start up additional services
     on or just after the startup of the server.
 
-    `StartupPlugin` is a [`SortablePlugin`][octoprint.plugin.core.SortablePlugin] and provides
-    sorting contexts for [`on_startup`](#octoprint.plugin.types.StartupPlugin.on_startup) as well as
+    `StartupPlugin` is a [`SortablePlugin`][octoprint.plugin.SortablePlugin] and provides
+    sorting contexts for [`on_startup`](#octoprint.plugin.StartupPlugin.on_startup) as well as
     [`on_after_startup`](#octoprint.plugin.StartupPlugin.on_after_startup).
     """
 
@@ -158,11 +162,11 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
 class ShutdownPlugin(OctoPrintPlugin, SortablePlugin):
     """
     The `ShutdownPlugin` allows hooking into the shutdown of OctoPrint. It's usually
-    used in conjunction with the [`StartupPlugin`][octoprint.plugin.types.StartupPlugin]
+    used in conjunction with the [`StartupPlugin`][octoprint.plugin.StartupPlugin]
     mixin, to cleanly shut down additional services again that where started by the
-    [`StartupPlugin`][octoprint.plugin.types.StartupPlugin] part of the plugin.
+    [`StartupPlugin`][octoprint.plugin.StartupPlugin] part of the plugin.
 
-    `ShutdownPlugin` is a [`SortablePlugin`](octoprint.plugin.core.SortablePlugin) and
+    `ShutdownPlugin` is a [`SortablePlugin`](octoprint.plugin.SortablePlugin) and
     provides a sorting context for `ShutdownPlugin.on_shutdown`.
     """
 
@@ -193,7 +197,7 @@ class AssetPlugin(OctoPrintPlugin, RestartNeedingPlugin):
     def get_asset_folder(self):
         """
         Defines the folder where the plugin stores its static assets as defined in
-        [`get_assets`][octoprint.plugin.types.AssetPlugin.get_assets]. Override this if
+        [`get_assets`][octoprint.plugin.AssetPlugin.get_assets]. Override this if
         your plugin stores its assets at some other place than the `static` sub folder in
         the plugin base directory.
 
@@ -328,7 +332,7 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         first, sorted alphabetically, then the optional steps will follow, also
         alphabetically. A wizard dialog provided through a plugin will only be displayed
         if the plugin reports the wizard as being required through `is_wizard_required`.
-        Please also refer to the [`WizardPlugin`][octoprint.plugin.types.WizardPlugin]
+        Please also refer to the [`WizardPlugin`][octoprint.plugin.WizardPlugin]
         mixin for further details on this.
 
         The included template must be called `<plugin identifier>_wizard.jinja2` (e.g.
@@ -371,21 +375,19 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         itself, e.g. in order to add overlays or dialogs to be called from within the
         plugin's JavaScript code.
 
-    .. figure:: ../images/template-plugin-types-main.png
-       :align: center
-       :alt: Template injection types in the main part of the interface
+    <figure markdown>
+        ![Template injection types in the main part of the interface](../../../../images/reference/octoprint/plugin/types/template-plugin-types-main.png)
+        <figcaption>Template injection types in the main part of the interface</figcaption>
+    </figure>
 
-       Template injection types in the main part of the interface
-
-    .. figure:: ../images/template-plugin-types-settings.png
-       :align: center
-       :alt: Template injection types in the settings
-
-       Template injection types in the settings
+    <figure markdown>
+        ![Template injection types in the settings](../../../../images/reference/octoprint/plugin/types/template-plugin-types-settings.png)
+        <figcaption>Template injection types in the settings</figcaption>
+    </figure>
 
     You can find an example for a simple plugin which injects navbar, tab and settings
     content into the interface in the "helloworld" plugin in OctoPrint's
-    [Plugin Tutorial]().
+    [Plugin Tutorial][dev-plugin.tutorial].
 
     Plugins may replace existing components, see the `replaces` keyword in the template
     configurations returned by `get_template_configs` below. Note that if a plugin
@@ -395,7 +397,7 @@ class TemplatePlugin(OctoPrintPlugin, ReloadNeedingPlugin):
     Plugins can also add additional template types by implementing the
     [`octoprint.ui.web.templatetypes` hook]().
 
-    `TemplatePlugin` is a [`ReloadNeedingPlugin`][octoprint.plugin.core.ReloadNeedingPlugin].
+    `TemplatePlugin` is a [`ReloadNeedingPlugin`][octoprint.plugin.types.ReloadNeedingPlugin].
     """
 
     @property
@@ -628,7 +630,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
     on the request exists and is set to `true`. To prevent caching of the response
     altogether, a plugin may set no-cache headers on the returned response as well.
 
-    `UiPlugin` is a [SortablePlugin][octoprint.plugin.core.SortablePlugin] with a sorting
+    `UiPlugin` is a [SortablePlugin][octoprint.plugin.SortablePlugin] with a sorting
     context for `UiPlugin.will_handle_ui`. The first plugin to return `True` for
     `will_handle_ui` will be the one whose UI will be used, no further calls to
     `on_ui_render` will be performed.
@@ -738,7 +740,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         able to handle the `request` provided as a parameter.
 
         Return `True` here to signal that your implementation will handle
-        the request and that the result of its [[octoprint.plugin.UiPlugin.on_ui_render]] method
+        the request and that the result of its [`on_ui_render`][octoprint.plugin.UiPlugin.on_ui_render] method
         is what should be served to the user.
 
         The execution order of calls to this method can be influenced via the sorting context
@@ -777,12 +779,12 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         | `version.display`     | `str`                | The full human readable version string, including the branch information (e.g. `x.y.z (master branch)`).                                                                                                                                                                                          |
         | `templates`           | `dict`               | Template data to render in the UI. Will be a `dict` containing entries for all known template types.                                                                                                                                                                                              |
         | `templates.*.order`   | `List[str]`          | A list of template names in the order they should be rendered.                                                                                                                                                                                                                                    |
-        | `templates.*.entries` | `Union[Tuple, Dict]` | The template entry definitions to render. Depending on the template type those are either 2-tuples of a name and a `dict` or directly `dict`s with information regarding the template to render. For the possible contents of the data `dict`s see the [[octoprint.plugin.TemplatePlugin]] mixin. |
-        | `pluginNames`         | `List[str]`          | A list of names of [[octoprint.plugin.TemplatePlugin]] implementations that were enabled when creating the `templates` value.                                                                                                                                                                     |
+        | `templates.*.entries` | `Union[Tuple, Dict]` | The template entry definitions to render. Depending on the template type those are either 2-tuples of a name and a `dict` or directly `dict`s with information regarding the template to render. For the possible contents of the data `dict`s see the [`TemplatePlugin`][octoprint.plugin.TemplatePlugin] mixin. |
+        | `pluginNames`         | `List[str]`          | A list of names of [`TemplatePlugin`][octoprint.plugin.TemplatePlugin] implementations that were enabled when creating the `templates` value.                                                                                                                                                                     |
         | `locales`             | `List[str]`          | The locales for which there are translations available.                                                                                                                                                                                                                                           |
         | `supportedExtensions` | `List[str]`          | The file extensions supported for uploads.                                                                                                                                                                                                                                                        |
 
-        On top of that all additional template variables as provided by [[octoprint.plugin.TemplatePlugin.get_template_vars]]
+        On top of that all additional template variables as provided by [`get_template_vars`][octoprint.plugin.TemplatePlugin.get_template_vars]
         will be contained in the dictionary as well.
 
         Arguments:
@@ -998,7 +1000,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
 class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
     """
     The `WizardPlugin` mixin allows plugins to report to OctoPrint whether
-    the `wizard` templates they define via the :class:`~octoprint.plugin.TemplatePlugin`
+    the `wizard` templates they define via the [`TemplatePlugin`][octoprint.plugin.types.TemplatePlugin]
     should be displayed to the user, what details to provide to their respective
     wizard frontend components and what to do when the wizard is finished
     by the user.
@@ -1006,58 +1008,59 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
     OctoPrint will only display such wizard dialogs to the user which belong
     to plugins that
 
-      * report `True` in their :func:`is_wizard_required` method and
+      * report `True` in their `is_wizard_required` method and
       * have not yet been shown to the user in the version currently being reported
-        by the :meth:`~octoprint.plugin.WizardPlugin.get_wizard_version` method
+        by the [octoprint.plugin.WizardPlugin.get_wizard_version][] method
 
-    Example: If a plugin with the identifier `myplugin` has a specific
-    setting `some_key` it needs to have filled by the user in order to be
-    able to work at all, it would probably test for that setting's value in
-    the :meth:`~octoprint.plugin.WizardPlugin.is_wizard_required` method and
-    return `True` if the value is unset:
+    !!! example
 
-    .. code-block:: python
+        If a plugin with the identifier `myplugin` has a specific
+        setting `some_key` it needs to have filled by the user in order to be
+        able to work at all, it would probably test for that setting's value in
+        the `is_wizard_required` method and
+        return `True` if the value is unset:
 
-       class MyPlugin(octoprint.plugin.SettingsPlugin,
-                      octoprint.plugin.TemplatePlugin,
-                      octoprint.plugin.WizardPlugin):
+        ``` python
+        class MyPlugin(octoprint.plugin.SettingsPlugin,
+                        octoprint.plugin.TemplatePlugin,
+                        octoprint.plugin.WizardPlugin):
 
-           def get_default_settings(self):
-               return dict(some_key=None)
+            def get_default_settings(self):
+                return dict(some_key=None)
 
-           def is_wizard_required(self):
-               return self._settings.get(["some_key"]) is None
+            def is_wizard_required(self):
+                return self._settings.get(["some_key"]) is None
+        ```
 
-    OctoPrint will then display the wizard dialog provided by the plugin through
-    the :class:`TemplatePlugin` mixin. Once the user finishes the wizard on the
-    frontend, OctoPrint will store that it already showed the wizard of `myplugin`
-    in the version reported by :meth:`~octoprint.plugin.WizardPlugin.get_wizard_version`
-    - here `None` since that is the default value returned by that function
-    and the plugin did not override it.
+        OctoPrint will then display the wizard dialog provided by the plugin through
+        the [octoprint.plugin.TemplatePlugin][] mixin. Once the user finishes the wizard on the
+        frontend, OctoPrint will store that it already showed the wizard of `myplugin`
+        in the version reported by get_wizard_version - here `None` since that is the
+        default value returned by that function and the plugin did not override it.
 
-    If the plugin in a later version needs another setting from the user in order
-    to function, it will also need to change the reported version in order to
-    have OctoPrint reshow the dialog. E.g.
+        If the plugin in a later version needs another setting from the user in order
+        to function, it will also need to change the reported version in order to
+        have OctoPrint reshow the dialog. E.g.
 
-    .. code-block:: python
+        ``` python
+        class MyPlugin(octoprint.plugin.SettingsPlugin,
+                        octoprint.plugin.TemplatePlugin,
+                        octoprint.plugin.WizardPlugin):
 
-       class MyPlugin(octoprint.plugin.SettingsPlugin,
-                      octoprint.plugin.TemplatePlugin,
-                      octoprint.plugin.WizardPlugin):
+            def get_default_settings(self):
+                return dict(some_key=None, some_other_key=None)
 
-           def get_default_settings(self):
-               return dict(some_key=None, some_other_key=None)
+            def is_wizard_required(self):
+                some_key_unset = self._settings.get(["some_key"]) is None
+                some_other_key_unset = self._settings.get(["some_other_key"]) is None
 
-           def is_wizard_required(self):
-               some_key_unset = self._settings.get(["some_key"]) is None
-               some_other_key_unset = self._settings.get(["some_other_key"]) is None
+                return some_key_unset or some_other_key_unset
 
-               return some_key_unset or some_other_key_unset
+            def get_wizard_version(self):
+                return 1
+        ```
 
-           def get_wizard_version(self):
-               return 1
-
-    `WizardPlugin` is a :class:`~octoprint.plugin.core.ReloadNeedingPlugin`.
+    `WizardPlugin` is a [octoprint.plugin.ReloadNeedingPlugin][].
     """
 
     # noinspection PyMethodMayBeStatic
@@ -1066,13 +1069,14 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         Allows the plugin to report whether it needs to display a wizard to the
         user or not.
 
-        Defaults to `False`.
-
         OctoPrint will only include those wizards from plugins which are reporting
         their wizards as being required through this method returning `True`.
         Still, if OctoPrint already displayed that wizard in the same version
         to the user once it won't be displayed again regardless whether this
-        method returns `True` or not.
+        method returns `True` or not, refer to [`is_wizard_ignored`][octoprint.plugin.WizardPlugin.is_wizard_ignored].
+
+        Returns:
+            (bool): `True` if the plugin needs to display a wizard to the user, `False` otherwise (default).
         """
         return False
 
@@ -1089,10 +1093,10 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         way to notify OctoPrint of these changes.
 
         Returns:
-            int or None: an int signifying the current wizard version, should be incremented by plugins whenever there
-                         are changes to the plugin that might necessitate reshowing the wizard if it is required. `None`
-                         will also be accepted and lead to the wizard always be ignored unless it has never been finished
-                         so far
+            (Optional[int]): an int signifying the current wizard version, should be incremented by plugins whenever there
+                are changes to the plugin that might necessitate reshowing the wizard if it is required. `None`
+                will also be accepted and lead to the wizard always be ignored unless it has never been finished
+                so far
         """
         return None
 
@@ -1106,8 +1110,8 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
         data to perform its task.
 
         Returns:
-            dict: a dictionary containing additional data to provide to the frontend. Whatever the plugin
-                  returns here will be made available on the wizard API under the plugin's identifier
+            (dict): a dictionary containing additional data to provide to the frontend. Whatever the plugin
+                returns here will be made available on the wizard API under the plugin's identifier
         """
         return {}
 
@@ -1139,21 +1143,21 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
 
         A wizard is ignored if
 
-          * the current and seen versions are identical
-          * the current version is None and the seen version is not
-          * the seen version is not None and the current version is less or equal than the seen one
+        - the current and seen versions are identical
+        - the current version is None and the seen version is not
+        - the seen version is not None and the current version is less or equal than the seen one
 
-        .. code-block:: none
-
-               | current |
-               | N-----N |
-           ----+---+---+---+   X = ignored
-           s N | X |   |   |
-           e --+---+---+---+
-           e 1 | X | X |   |
-           n --+---+---+---+
-             2 | X | X | X |
-           ----+---+---+---+
+        +----------+-----------------------------------+
+        |          |  current                          |
+        |          +-----------+-----------+-----------+
+        |          | N         | 1         | 2         |
+        +------+---+-----------+-----------+-----------+
+        | seen | N | ❌ ignored | ✅ shown   | ✅ shown   |
+        |      +---+-----------+-----------+-----------+
+        |      | 1 | ❌ ignored | ❌ ignored | ✅ shown   |
+        |      +---+-----------+-----------+-----------+
+        |      | 2 | ❌ ignored | ❌ ignored | ❌ ignored |
+        +------+---+-----------+-----------+-----------+
 
         Arguments:
             seen_wizards (dict): A dictionary with information about already seen
@@ -1163,8 +1167,8 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
             implementation (object): The plugin implementation to check.
 
         Returns:
-            bool: False if the provided `implementation` is either not a :class:`WizardPlugin`
-                  or has not yet been seen (in this version), True otherwise
+            (bool): False if the provided `implementation` is either not a `WizardPlugin`
+                or has not yet been seen (in this version), True otherwise
         """
 
         if not isinstance(implementation, cls):
@@ -1366,7 +1370,7 @@ class SimpleApiPlugin(OctoPrintPlugin):
 class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
     """
     The `BlueprintPlugin` mixin allows plugins to define their own full fledged endpoints for whatever purpose,
-    be it a more sophisticated API than what is possible via the [`SimpleApiPlugin`][octoprint.plugin.types.SimpleApiPlugin] or a custom web frontend.
+    be it a more sophisticated API than what is possible via the [`SimpleApiPlugin`][octoprint.plugin.SimpleApiPlugin] or a custom web frontend.
 
     The mechanism at work here is [Flask's](http://flask.pocoo.org/) own [Blueprint mechanism](http://flask.pocoo.org/docs/0.10/blueprints/).
 
@@ -1506,8 +1510,8 @@ class BlueprintPlugin(OctoPrintPlugin, RestartNeedingPlugin):
         `template_folder`, etc.
 
         Defaults to the blueprint's `static_folder` and `template_folder` to be set to the plugin's basefolder
-        plus `/static` or respectively `/templates`, or - if the plugin also implements [`AssetPlugin`][octoprint.plugin.types.AssetPlugin] and/or
-        [`TemplatePlugin`][octoprint.plugin.types.TemplatePlugin] - the paths provided by `get_asset_folder` and `get_template_folder` respectively.
+        plus `/static` or respectively `/templates`, or - if the plugin also implements [`AssetPlugin`][octoprint.plugin.AssetPlugin] and/or
+        [`TemplatePlugin`][octoprint.plugin.TemplatePlugin] - the paths provided by `get_asset_folder` and `get_template_folder` respectively.
         """
         import os
 
@@ -1998,8 +2002,8 @@ class SettingsPlugin(OctoPrintPlugin):
 
 class EventHandlerPlugin(OctoPrintPlugin):
     """
-    The `EventHandlerPlugin` mixin allows OctoPrint plugins to react to any of :ref:`OctoPrint's events <sec-events>`.
-    OctoPrint will call the :func:`on_event` method for any event fired on its internal event bus, supplying the
+    The `EventHandlerPlugin` mixin allows OctoPrint plugins to react to any of [OctoPrint's events][dev-guide.events].
+    OctoPrint will call the `on_event` method for any event fired on its internal event bus, supplying the
     event type and the associated payload. Please note that until your plugin returns from that method, further event
     processing within OctoPrint will block - the event queue itself is run asynchronously from the rest of OctoPrint,
     but the processing of the events within the queue itself happens consecutively.
@@ -2110,10 +2114,10 @@ class SlicerPlugin(OctoPrintPlugin):
 
     def get_slicer_profiles(self, profile_path):
         """
-        Fetch all [[octoprint.slicing.SlicingProfile]] stored for this slicer.
+        Fetch all [octoprint.slicing.SlicingProfile][] stored for this slicer.
 
         For compatibility reasons with existing slicing plugins this method defaults to returning profiles parsed from
-        .profile files in the plugin's `profile_path`, utilizing the [`SlicingPlugin.get_slicer_profile`](#octoprint.plugin.types.SlicingPlugin.get_slicer_profile) method
+        .profile files in the plugin's `profile_path`, utilizing the [`SlicingPlugin.get_slicer_profile`](#octoprint.plugin.SlicingPlugin.get_slicer_profile) method
         of the plugin implementation.
 
         Arguments:
@@ -2156,11 +2160,11 @@ class SlicerPlugin(OctoPrintPlugin):
     # noinspection PyMethodMayBeStatic
     def get_slicer_default_profile(self):
         """
-        Should return a [[octoprint.slicing.SlicingProfile]] containing the default slicing profile to use with
+        Should return a [octoprint.slicing.SlicingProfile][] containing the default slicing profile to use with
         this slicer if no other profile has been selected.
 
         Returns:
-            (SlicingProfile): The [[octoprint.slicing.SlicingProfile]] containing the default slicing profile for
+            (SlicingProfile): The [octoprint.slicing.SlicingProfile][] containing the default slicing profile for
                 this slicer.
         """
         return None
@@ -2168,7 +2172,7 @@ class SlicerPlugin(OctoPrintPlugin):
     # noinspection PyMethodMayBeStatic
     def get_slicer_profile(self, path):
         """
-        Should return a [[octoprint.slicing.SlicingProfile]] parsed from the slicing profile stored at the
+        Should return a [octoprint.slicing.SlicingProfile][] parsed from the slicing profile stored at the
         indicated `path`.
 
         Arguments:
@@ -2182,7 +2186,7 @@ class SlicerPlugin(OctoPrintPlugin):
     # noinspection PyMethodMayBeStatic
     def save_slicer_profile(self, path, profile, allow_overwrite=True, overrides=None):
         """
-        Should save the provided [[octoprint.slicing.SlicingProfile]] to the indicated `path`, after applying
+        Should save the provided [octoprint.slicing.SlicingProfile][] to the indicated `path`, after applying
         any supplied `overrides`. If a profile is already saved under the indicated path and `allow_overwrite` is
         set to `False` (defaults to `True`), an `IOError` should be raised.
 
@@ -2248,12 +2252,12 @@ class SlicerPlugin(OctoPrintPlugin):
         `analysis`
         :   Analysis result of the generated machine code as returned by the slicer itself. This should match the
             data structure described for the analysis queue of the matching machine code format, e.g.
-            [[octoprint.filemanager.analysis.GcodeAnalysisQueue]] for GCODE files.
+            [octoprint.filemanager.analysis.GcodeAnalysisQueue][] for GCODE files.
 
         For jobs that did not finish successfully (but not due to being cancelled!), `result` should be a :class:`str`
         containing a human readable reason for the error.
 
-        If the job gets cancelled, a [[octoprint.slicing.SlicingCancelled]] exception should be raised.
+        If the job gets cancelled, a [octoprint.slicing.SlicingCancelled][] exception should be raised.
 
         Returns:
             (tuple): A 2-tuple (boolean, object) as outlined above.
@@ -2277,7 +2281,7 @@ class SlicerPlugin(OctoPrintPlugin):
 
 class ProgressPlugin(OctoPrintPlugin):
     """
-    Via the `ProgressPlugin` mixing plugins can let themselves be called upon progress in
+    Via the `ProgressPlugin` mixin plugins can let themselves be called upon progress in
     print jobs or slicing jobs, limited to minimally 1% steps.
     """
 
