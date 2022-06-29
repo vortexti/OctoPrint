@@ -116,8 +116,8 @@ class StartupPlugin(OctoPrintPlugin, SortablePlugin):
     on or just after the startup of the server.
 
     `StartupPlugin` is a [`SortablePlugin`][octoprint.plugin.core.SortablePlugin] and provides
-    sorting contexts for [`on_startup`][octoprint.plugin.StartupPlugin.on_startup] as well as
-    [`on_after_startup`][octoprint.plugin.StartupPlugin.on_after_startup].
+    sorting contexts for [`on_startup`](#octoprint.plugin.types.StartupPlugin.on_startup) as well as
+    [`on_after_startup`](#octoprint.plugin.StartupPlugin.on_after_startup).
     """
 
     def on_startup(self, host, port):
@@ -635,84 +635,84 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
 
     If implementations want to serve custom templates in the
     `on_ui_render` method it is recommended to also implement the
-    [TemplatePlugin mixin][octoprint.plugin.types.TemplatePlugin].
+    [TemplatePlugin mixin](#octoprint.plugin.TemplatePlugin).
 
-    **Example**
+    !!! example
 
-    What follows is a very simple example that renders a different (non functional and
-    only exemplary) UI if the requesting client has a UserAgent string hinting
-    at it being a mobile device:
+        What follows is a very simple example that renders a different (non functional and
+        only exemplary) UI if the requesting client has a UserAgent string hinting
+        at it being a mobile device:
 
-    ``` python title="dummy_mobile_ui/__init__py"
+        ``` python title="dummy_mobile_ui/__init__py"
 
-    # coding=utf-8
-    from __future__ import absolute_import
+        # coding=utf-8
+        from __future__ import absolute_import
 
-    import octoprint.plugin
+        import octoprint.plugin
 
-    class DummyMobileUiPlugin(octoprint.plugin.UiPlugin,
-                            octoprint.plugin.TemplatePlugin):
+        class DummyMobileUiPlugin(octoprint.plugin.UiPlugin,
+                                octoprint.plugin.TemplatePlugin):
 
-        def will_handle_ui(self, request):
-            # returns True if the User Agent sent by the client matches one of
-            # the User Agent strings known for any of the platforms android, ipad
-            # or iphone
-            return request.user_agent and \
-                request.user_agent.platform in ("android", "ipad", "iphone")
+            def will_handle_ui(self, request):
+                # returns True if the User Agent sent by the client matches one of
+                # the User Agent strings known for any of the platforms android, ipad
+                # or iphone
+                return request.user_agent and \
+                    request.user_agent.platform in ("android", "ipad", "iphone")
 
-        def on_ui_render(self, now, request, render_kwargs):
-            # if will_handle_ui returned True, we will now render our custom index
-            # template, using the render_kwargs as provided by OctoPrint
-            from flask import make_response, render_template
-            return make_response(render_template("dummy_mobile_ui_index.jinja2",
-                                                 **render_kwargs))
+            def on_ui_render(self, now, request, render_kwargs):
+                # if will_handle_ui returned True, we will now render our custom index
+                # template, using the render_kwargs as provided by OctoPrint
+                from flask import make_response, render_template
+                return make_response(render_template("dummy_mobile_ui_index.jinja2",
+                                                    **render_kwargs))
 
-    __plugin_name__ = "Dummy Mobile UI"
-    __plugin_pythoncompat__ = ">=2.7,<4"
-    __plugin_implementation__ = DummyMobileUiPlugin()
-    ```
+        __plugin_name__ = "Dummy Mobile UI"
+        __plugin_pythoncompat__ = ">=2.7,<4"
+        __plugin_implementation__ = DummyMobileUiPlugin()
+        ```
 
-    ``` jinja title="dummy_mobile_ui/templates/dummy_mobile_ui_index.jinja2"
+        ``` jinja title="dummy_mobile_ui/templates/dummy_mobile_ui_index.jinja2"
 
-    <html>
-        <head>
-            <title>Dummy Mobile OctoPrint UI</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-        </head>
-        <body>
-            <h1>Dummy Mobile OctoPrint UI</h1>
+        <html>
+            <head>
+                <title>Dummy Mobile OctoPrint UI</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+            </head>
+            <body>
+                <h1>Dummy Mobile OctoPrint UI</h1>
 
-            <p>
-                Well hello there. Sadly, this is only a placeholder page used to
-                demonstrate how UiPlugins work. Hence the "Dummy" in the name.
-                Hope you are not too disappointed :)
-            </p>
+                <p>
+                    Well hello there. Sadly, this is only a placeholder page used to
+                    demonstrate how UiPlugins work. Hence the "Dummy" in the name.
+                    Hope you are not too disappointed :)
+                </p>
 
-            <p>
-                Some data from the <code>render_kwargs</code> passed to this
-                template:
-            </p>
+                <p>
+                    Some data from the <code>render_kwargs</code> passed to this
+                    template:
+                </p>
 
-            <ul>
-                <!--
-                We can include any render keywords arguments by their name,
-                using the regular Jinja templating functionality.
-                -->
-                <li>Version: {{ display_version }}</li>
-                <li>Debug: {{ debug }}</li>
-                <li>Template Count: {{ templates|length }}</li>
-                <li>Installed Plugins: {{ pluginNames|join(", ") }}</li>
-            </ul>
-        </body>
-    </html>
-    ```
+                <ul>
+                    <!--
+                    We can include any render keywords arguments by their name,
+                    using the regular Jinja templating functionality.
+                    -->
+                    <li>Version: {{ display_version }}</li>
+                    <li>Debug: {{ debug }}</li>
+                    <li>Template Count: {{ templates|length }}</li>
+                    <li>Installed Plugins: {{ pluginNames|join(", ") }}</li>
+                </ul>
+            </body>
+        </html>
+        ```
 
-    Try installing the above plugin `dummy_mobile_ui` (also available in the
-    [plugin examples repository](https://github.com/OctoPrint/Plugin-Examples/blob/master/dummy_mobile_ui))
-    into your OctoPrint instance. If you access it from a regular desktop browser,
-    you should still see the default UI. However if you access it from a mobile
-    device (make sure to not have that request the desktop version of pages!)
-    you should see the very simple dummy page defined above.
+        Try installing the above plugin `dummy_mobile_ui` (also available in the
+        [plugin examples repository](https://github.com/OctoPrint/Plugin-Examples/blob/master/dummy_mobile_ui))
+        into your OctoPrint instance. If you access it from a regular desktop browser,
+        you should still see the default UI. However if you access it from a mobile
+        device (make sure to not have that request the desktop version of pages!)
+        you should see the very simple dummy page defined above.
 
     **Preemptive and Runtime Caching**
 
@@ -738,14 +738,14 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         able to handle the `request` provided as a parameter.
 
         Return `True` here to signal that your implementation will handle
-        the request and that the result of its :meth:`~octoprint.plugin.UiPlugin.on_ui_render` method
+        the request and that the result of its [[octoprint.plugin.UiPlugin.on_ui_render]] method
         is what should be served to the user.
 
         The execution order of calls to this method can be influenced via the sorting context
         `UiPlugin.will_handle_ui`.
 
         Arguments:
-            request (flask.Request): A Flask `Request <http://flask.pocoo.org/docs/0.10/api/#flask.Request>`_
+            request (flask.Request): A [Flask Request](http://flask.pocoo.org/docs/0.10/api/#flask.Request)
                 object.
 
         Returns:
@@ -766,82 +766,35 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         key value pairs contained in the dictionary are listed here, only
         those you should depend on as a plugin developer at the current time):
 
-        | Name | Type | Description |
-        | ---- | ---- | ----------- |
-        | `debug` | `bool` | Whether the debug mode is enabled or not. |
-        | `firstRun` | `bool` | Whether the server is running for the first time or not. |
-        | `version` | `dict` | The version of OctoPrint. |
+        [//]: # (Use "Markdown Table" VSCode extension to format: https://marketplace.visualstudio.com/items?itemName=TakumiI.markdowntable)
+        | Name                  | Type                 | Description                                                                                                                                                                                                                                                                                       |
+        | --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+        | `debug`               | `bool`               | Whether the debug mode is enabled or not.                                                                                                                                                                                                                                                         |
+        | `firstRun`            | `bool`               | Whether the server is running for the first time or not.                                                                                                                                                                                                                                          |
+        | `version`             | `dict`               | OctoPrint's version information.                                                                                                                                                                                                                                                                  |
+        | `version.number`      | `str`                | The version number (e.g. `x.y.z`).                                                                                                                                                                                                                                                                |
+        | `version.branch`      | `str`                | The git branch name from which the OctoPrint instance was built (e.g. `master`).                                                                                                                                                                                                                  |
+        | `version.display`     | `str`                | The full human readable version string, including the branch information (e.g. `x.y.z (master branch)`).                                                                                                                                                                                          |
+        | `templates`           | `dict`               | Template data to render in the UI. Will be a `dict` containing entries for all known template types.                                                                                                                                                                                              |
+        | `templates.*.order`   | `List[str]`          | A list of template names in the order they should be rendered.                                                                                                                                                                                                                                    |
+        | `templates.*.entries` | `Union[Tuple, Dict]` | The template entry definitions to render. Depending on the template type those are either 2-tuples of a name and a `dict` or directly `dict`s with information regarding the template to render. For the possible contents of the data `dict`s see the [[octoprint.plugin.TemplatePlugin]] mixin. |
+        | `pluginNames`         | `List[str]`          | A list of names of [[octoprint.plugin.TemplatePlugin]] implementations that were enabled when creating the `templates` value.                                                                                                                                                                     |
+        | `locales`             | `List[str]`          | The locales for which there are translations available.                                                                                                                                                                                                                                           |
+        | `supportedExtensions` | `List[str]`          | The file extensions supported for uploads.                                                                                                                                                                                                                                                        |
 
-        .. list-table::
-           :widths: 5 95
-
-           * - debug
-             - `True` if debug mode is enabled, `False` otherwise.
-           * - firstRun
-             - `True` if the server is being run for the first time (not
-               configured yet), `False` otherwise.
-           * - version
-             - OctoPrint's version information. This is a `dict` with the
-               following keys:
-
-               .. list-table::
-                  :widths: 5 95
-
-                  * - number
-                    - The version number (e.g. `x.y.z`)
-                  * - branch
-                    - The GIT branch from which the OctoPrint instance was built
-                      (e.g. `master`)
-                  * - display
-                    - The full human readable version string, including the
-                      branch information (e.g. `x.y.z (master branch)`
-
-           * - uiApiKey
-             - The UI API key to use for unauthorized API requests. This is
-               freshly generated on every server restart.
-           * - templates
-             - Template data to render in the UI. Will be a `dict` containing entries
-               for all known template types.
-
-               The sub structure for each key will be as follows:
-
-               .. list-table::
-                  :widths: 5 95
-
-                  * - order
-                    - A list of template names in the order they should appear
-                      in the final rendered page
-                  * - entries
-                    - The template entry definitions to render. Depending on the
-                      template type those are either 2-tuples of a name and a `dict`
-                      or directly `dicts` with information regarding the
-                      template to render.
-
-                      For the possible contents of the data `dicts` see the
-                      :class:`~octoprint.plugin.TemplatePlugin` mixin.
-
-           * - pluginNames
-             - A list of names of :class:`~octoprint.plugin.TemplatePlugin`
-               implementation that were enabled when creating the `templates`
-               value.
-           * - locales
-             - The locales for which there are translations available.
-           * - supportedExtensions
-             - The file extensions supported for uploads.
-
-        On top of that all additional template variables as provided by :meth:`~octoprint.plugin.TemplatePlugin.get_template_vars`
+        On top of that all additional template variables as provided by [[octoprint.plugin.TemplatePlugin.get_template_vars]]
         will be contained in the dictionary as well.
 
         Arguments:
             now (datetime.datetime): The datetime instance representing "now"
                 for this request, in case your plugin implementation needs this
                 information.
-            request (flask.Request): A Flask `Request <http://flask.pocoo.org/docs/0.10/api/#flask.Request>`_ object.
+            request (flask.Request): A [Flask Request](http://flask.pocoo.org/docs/0.10/api/#flask.Request>) object.
             render_kwargs (dict): The (cached) render keyword arguments that
                 would usually be provided to the core UI render function.
 
         Returns:
-            flask.Response: Should return a Flask `Response <http://flask.pocoo.org/docs/0.10/api/#flask.Response>`_
+            (flask.Response): Should return a [Flask Response](http://flask.pocoo.org/docs/0.10/api/#flask.Response)
                 object that can be served to the requesting client directly. May be
                 created with `flask.make_response` combined with something like
                 `flask.render_template`.
@@ -855,11 +808,11 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         Allows to return additional data to use in the cache key.
 
         Returns:
-            list, tuple: A list or tuple of strings to use in the cache key. Will be joined by OctoPrint
+            (Union[List, Tuple, None]): A list or tuple of strings to use in the cache key. Will be joined by OctoPrint
                 using `:` as separator and appended to the existing `ui:<identifier>:<base url>:<locale>`
                 cache key. Ignored if `None` is returned.
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -871,10 +824,10 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         files can be added by a plugin through this callback.
 
         Returns:
-            list: A list of paths to additional files whose modification to track for (in)validating
+            (Optional[List]): A list of paths to additional files whose modification to track for (in)validating
                 the cache. Ignored if `None` is returned.
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -886,10 +839,10 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         files specified in the returned list.
 
         Returns:
-            list: A list of paths representing the only files whose modification to track for (in)validating
+            (Optional[List]): A list of paths representing the only files whose modification to track for (in)validating
                 the cache. Ignored if `None` is returned.
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -900,9 +853,9 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         OctoPrint's version, tracked file paths and `LastModified` value).
 
         Returns:
-            str: An alternatively calculated ETag value. Ignored if `None` is returned (default).
+            (str): An alternatively calculated ETag value. Ignored if `None` is returned (default).
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -920,7 +873,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         Returns:
             (list): A list of additional fields for the ETag generation, or None
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return default_additional
 
@@ -931,9 +884,9 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         date of all tracked files.
 
         Returns:
-            int: An alternatively calculated LastModified value. Ignored if `None` is returned (default).
+            (Optional[Int]): An alternatively calculated LastModified value. Ignored if `None` is returned (default).
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -946,7 +899,7 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         Have this return False if you do not want your plugin's UI to ever be preemptively cached.
 
         Returns:
-            bool: Whether to enable preemptive caching (True, default) or not (False)
+            (bool): Whether to enable preemptive caching (`True`, default) or not (`False`)
         """
         return True
 
@@ -957,9 +910,9 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         top of the request path, base URL and used locale.
 
         Returns:
-            dict: Additional data to persist in the preemptive cache configuration.
+            (dict): Additional data to persist in the preemptive cache configuration.
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -970,14 +923,14 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         to use for the fake request used for populating the preemptive cache.
 
         Keys and values are used as keyword arguments for creating the
-        `Werkzeug EnvironBuilder <http://werkzeug.pocoo.org/docs/0.11/test/#werkzeug.test.EnvironBuilder>`_
+        [Werkzeug EnvironBuilder](http://werkzeug.pocoo.org/docs/0.11/test/#werkzeug.test.EnvironBuilder)
         used for creating the fake request.
 
         Returns:
-            dict: Additional request data to persist in the preemptive cache configuration and to
+            (dict): Additional request data to persist in the preemptive cache configuration and to
                 use for request environment construction.
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return None
 
@@ -991,9 +944,9 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         access or not. If you return `True` here, no record will be created.
 
         Returns:
-            bool: Whether to suppress a record (True) or not (False, default)
+            (bool): Whether to suppress a record (`True`) or not (`False`, default)
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return False
 
@@ -1011,11 +964,11 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
             default_template_filter (callable): The default template filter used by the default UI
 
         Returns:
-            (callable) A filter function accepting the `template_type` and `template_key` of a template
-            and returning `True` to keep it and `False` to filter it out. If `None` is returned, no
-            filtering will take place.
+            (callable): A filter function accepting the `template_type` and `template_key` of a template
+                and returning `True` to keep it and `False` to filter it out. If `None` is returned, no
+                filtering will take place.
 
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         return default_template_filter
 
@@ -1032,10 +985,10 @@ class UiPlugin(OctoPrintPlugin, SortablePlugin):
         login logic.
 
         Returns:
-            (list) A list of permissions which to check the current user session against.
-            May be empty to indicate that no permission checks should be made by OctoPrint.
+            (list): A list of permissions which to check the current user session against.
+                May be empty to indicate that no permission checks should be made by OctoPrint.
 
-        .. versionadded: 1.5.0
+        {{ version_added("1.5.0") }}
         """
         from octoprint.access.permissions import Permissions
 
@@ -1192,8 +1145,8 @@ class WizardPlugin(OctoPrintPlugin, ReloadNeedingPlugin):
 
         .. code-block:: none
 
-               |  current  |
-               | N | 1 | 2 |   N = None
+               | current |
+               | N-----N |
            ----+---+---+---+   X = ignored
            s N | X |   |   |
            e --+---+---+---+
@@ -1248,7 +1201,7 @@ class SimpleApiPlugin(OctoPrintPlugin):
     """
     Utilizing the `SimpleApiPlugin` mixin plugins may implement a simple API based around one GET resource and one
     resource accepting JSON commands POSTed to it. This is the easy alternative for plugin's which don't need the
-    full power of a `Flask Blueprint <http://flask.pocoo.org/docs/0.10/blueprints/>`_ that the :class:`BlueprintPlugin`
+    full power of a [Flask Blueprint](http://flask.pocoo.org/docs/0.10/blueprints/) that the [`BlueprintPlugin`](#octoprint.plugin.BlueprintPlugin)
     mixin offers.
 
     Use this mixin if all you need to do is return some kind of dynamic data to your plugin from the backend
@@ -1263,33 +1216,33 @@ class SimpleApiPlugin(OctoPrintPlugin):
 
     Take this example of a plugin registered under plugin identifier `mysimpleapiplugin`:
 
-    .. code-block:: python
+    ``` python
+    import octoprint.plugin
 
-       import octoprint.plugin
+    import flask
 
-       import flask
+    class MySimpleApiPlugin(octoprint.plugin.SimpleApiPlugin):
+        def get_api_commands(self):
+            return dict(
+                command1=[],
+                command2=["some_parameter"]
+            )
 
-       class MySimpleApiPlugin(octoprint.plugin.SimpleApiPlugin):
-           def get_api_commands(self):
-               return dict(
-                   command1=[],
-                   command2=["some_parameter"]
-               )
+        def on_api_command(self, command, data):
+            import flask
+            if command == "command1":
+                parameter = "unset"
+                if "parameter" in data:
+                    parameter = "set"
+                self._logger.info("command1 called, parameter is {parameter}".format(**locals()))
+            elif command == "command2":
+                self._logger.info("command2 called, some_parameter is {some_parameter}".format(**data))
 
-           def on_api_command(self, command, data):
-               import flask
-               if command == "command1":
-                   parameter = "unset"
-                   if "parameter" in data:
-                       parameter = "set"
-                   self._logger.info("command1 called, parameter is {parameter}".format(**locals()))
-               elif command == "command2":
-                   self._logger.info("command2 called, some_parameter is {some_parameter}".format(**data))
+        def on_api_get(self, request):
+            return flask.jsonify(foo="bar")
 
-           def on_api_get(self, request):
-               return flask.jsonify(foo="bar")
-
-       __plugin_implementation__ = MySimpleApiPlugin()
+    __plugin_implementation__ = MySimpleApiPlugin()
+    ```
 
     Our plugin defines two commands, `command1` with no mandatory parameters and `command2` with one
     mandatory parameter `some_parameter`.
@@ -1299,39 +1252,39 @@ class SimpleApiPlugin(OctoPrintPlugin):
 
     A valid POST request for `command2` sent to `/api/plugin/mysimpleapiplugin` would look like this:
 
-    .. sourcecode:: http
+    ``` http
+    POST /api/plugin/mysimpleapiplugin HTTP/1.1
+    Host: example.com
+    Content-Type: application/json
+    X-Api-Key: abcdef...
 
-       POST /api/plugin/mysimpleapiplugin HTTP/1.1
-       Host: example.com
-       Content-Type: application/json
-       X-Api-Key: abcdef...
-
-       {
-         "command": "command2",
-         "some_parameter": "some_value",
-         "some_optional_parameter": 2342
-       }
+    {
+        "command": "command2",
+        "some_parameter": "some_value",
+        "some_optional_parameter": 2342
+    }
+    ```
 
     which would produce a response like this:
 
-    .. sourcecode:: http
+    ```http
+    HTTP/1.1 204 No Content
+    ```
 
-       HTTP/1.1 204 No Content
+    and print something like this line to `octoprint.log`:
 
-    and print something like this line to `octoprint.log`::
-
-       2015-02-12 17:40:21,140 - octoprint.plugins.mysimpleapiplugin - INFO - command2 called, some_parameter is some_value
+        2022-02-12 17:40:21,140 - octoprint.plugins.mysimpleapiplugin - INFO - command2 called, some_parameter is some_value
 
     A GET request on our plugin's simple API resource will only return a JSON document like this:
 
-    .. sourcecode:: http
+    ``` http
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
 
-       HTTP/1.1 200 Ok
-       Content-Type: application/json
-
-       {
-         "foo": "bar"
-       }
+    {
+        "foo": "bar"
+    }
+    ```
     """
 
     # noinspection PyMethodMayBeStatic
@@ -1339,6 +1292,9 @@ class SimpleApiPlugin(OctoPrintPlugin):
         """
         Return a dictionary here with the keys representing the accepted commands and the values being lists of
         mandatory parameter names.
+
+        Returns:
+            (Optional[dict]): a dictionary descripting the accepted commands and their mandatory parameters
         """
         return None
 
@@ -1346,6 +1302,9 @@ class SimpleApiPlugin(OctoPrintPlugin):
     def is_api_adminonly(self):
         """
         Return True if the API is only available to users having the admin role.
+
+        Returns:
+            (bool): True if the API is only available to users having the admin permission
         """
         return False
 
@@ -1353,7 +1312,7 @@ class SimpleApiPlugin(OctoPrintPlugin):
     def on_api_command(self, command, data):
         """
         Called by OctoPrint upon a POST request to `/api/plugin/<plugin identifier>`. `command` will contain one of
-        the commands as specified via :func:`get_api_commands`, `data` will contain the full request body parsed
+        the commands as specified via `get_api_commands`, `data` will contain the full request body parsed
         from JSON into a Python dictionary. Note that this will also contain the `command` attribute itself. For the
         example given above, for the `command2` request the `data` received by the plugin would be equal to
         `dict(command="command2", some_parameter="some_value")`.
@@ -1362,10 +1321,14 @@ class SimpleApiPlugin(OctoPrintPlugin):
         for you. You may also return regular responses as you would return from any Flask view here though, e.g.
         `return flask.jsonify(result="some json result")` or `flask.abort(404)`.
 
-        :param string command: the command with which the resource was called
-        :param dict data:      the full request body of the POST request parsed from JSON into a Python dictionary
-        :return: `None` in which case OctoPrint will generate a `204 No content` response with empty body, or optionally
-                 a proper Flask response.
+        Arguments:
+            command (str): the command with which the resource was called
+            data (dict): the full request body of the POST request parsed from JSON into a Python dictionary
+
+        Returns:
+            (Optional[flask.Response]): a response to be returned to the client, either `None`
+                in which case OctoPrint will generate a `204 No content` response with empty body, or optionally
+                a proper Flask response.
         """
         return None
 
@@ -1373,16 +1336,29 @@ class SimpleApiPlugin(OctoPrintPlugin):
     def on_api_get(self, request):
         """
         Called by OctoPrint upon a GET request to `/api/plugin/<plugin identifier>`. `request` will contain the
-        received `Flask request object <http://flask.pocoo.org/docs/0.9/api/#flask.Request>`_ which you may evaluate
+        received [Flask request object](http://flask.pocoo.org/docs/0.9/api/#flask.Request) which you may evaluate
         for additional arguments supplied with the request.
 
         If your plugin returns nothing here, OctoPrint will return an empty response with return code `204 No content`
         for you. You may also return regular responses as you would return from any Flask view here though, e.g.
-        `return flask.jsonify(result="some json result")` or `flask.abort(404)`.
 
-        :param request: the Flask request object
-        :return: `None` in which case OctoPrint will generate a `204 No content` response with empty body, or optionally
-                 a proper Flask response.
+        ```python
+        return flask.jsonify(result="some json result")
+        ```
+
+        or
+
+        ```python
+        return flask.abort(404)
+        ```
+
+        Arguments:
+            request (flask.Request): the Flask request object
+
+        Returns:
+            (Optional[flask.Response]): a response to be returned to the client, either `None`
+                in which case OctoPrint will generate a `204 No content` response with empty body, or optionally
+                a proper Flask response.
         """
         return None
 
@@ -2063,6 +2039,9 @@ class SlicerPlugin(OctoPrintPlugin):
         sub system upon startup. Plugins may use this to do some start up checks to verify that e.g. the path to
         a slicing binary as set and the binary is executable, or credentials of a cloud slicing platform are properly
         entered etc.
+
+        Returns:
+            (bool): `True` if the slicer is configured and ready to be used, `False` otherwise.
         """
         return False
 
@@ -2073,28 +2052,33 @@ class SlicerPlugin(OctoPrintPlugin):
 
         The expected keys in the returned `dict` have the following meaning:
 
-        type
-            The type identifier to use for the slicer. This should be a short unique lower case string which will be
+        `type`
+        :   The type identifier to use for the slicer. This should be a short unique lower case string which will be
             used to store slicer profiles under or refer to the slicer programmatically or from the API.
-        name
-            The human readable name of the slicer. This will be displayed to the user during slicer selection.
-        same_device
-            True if the slicer runs on the same device as OctoPrint, False otherwise. Slicers running on the same
+
+        `name`
+        :    The human readable name of the slicer. This will be displayed to the user during slicer selection.
+
+        `same_device`
+        :   True if the slicer runs on the same device as OctoPrint, False otherwise. Slicers running on the same
             device will not be allowed to slice on systems with less than two CPU cores (or an unknown number) while a
             print is running due to performance reasons. Slice requests against slicers running on the same device and
             less than two cores will result in an error.
-        progress_report
-            `True` if the slicer can report back slicing progress to OctoPrint `False` otherwise.
-        source_file_types
-            A list of file types this slicer supports as valid origin file types. These are file types as found in the
+
+        `progress_report`
+        :   `True` if the slicer can report back slicing progress to OctoPrint `False` otherwise.
+
+        `source_file_types`
+        :   A list of file types this slicer supports as valid origin file types. These are file types as found in the
             paths within the extension tree. Plugins may add additional file types through the :ref:`sec-plugins-hook-filemanager-extensiontree` hook.
             The system will test source files contains in incoming slicing requests via :meth:`octoprint.filemanager.valid_file_type` against the
             targeted slicer's `source_file_types`.
-        destination_extension
-            The possible extensions of slicing result files.
+
+        `destination_extension`
+        :   The possible extensions of slicing result files.
 
         Returns:
-            dict: A dict describing the slicer as outlined above.
+            (dict): A dict describing the slicer as outlined above.
         """
         return {
             "type": None,
@@ -2113,11 +2097,12 @@ class SlicerPlugin(OctoPrintPlugin):
         By default, a subtree for `model` files with `stl` extension is returned. Slicers who want to support
         additional/other file types will want to override this.
 
-        For the extension tree format, take a look at the docs of the :ref:`octoprint.filemanager.extension_tree hook <sec-plugins-hook-filemanager-extensiontree>`.
+        For the extension tree format, take a look at the docs of the [`octoprint.filemanager.extension_tree` hook]().
 
-        Returns: (dict) a dictionary containing a valid extension subtree.
+        Returns:
+            (dict) a dictionary containing a valid extension subtree.
 
-        .. versionadded:: 1.3.11
+        {{ version_added("1.3.11") }}
         """
         from octoprint.filemanager import ContentTypeMapping
 
@@ -2125,16 +2110,16 @@ class SlicerPlugin(OctoPrintPlugin):
 
     def get_slicer_profiles(self, profile_path):
         """
-        Fetch all :class:`~octoprint.slicing.SlicingProfile` stored for this slicer.
+        Fetch all [[octoprint.slicing.SlicingProfile]] stored for this slicer.
 
         For compatibility reasons with existing slicing plugins this method defaults to returning profiles parsed from
-        .profile files in the plugin's `profile_path`, utilizing the :func:`SlicingPlugin.get_slicer_profile` method
+        .profile files in the plugin's `profile_path`, utilizing the [`SlicingPlugin.get_slicer_profile`](#octoprint.plugin.types.SlicingPlugin.get_slicer_profile) method
         of the plugin implementation.
 
         Arguments:
             profile_path (str): The base folder where OctoPrint stores this slicer plugin's profiles
 
-        .. versionadded:: 1.3.7
+        {{ version_added("1.3.7") }}
         """
 
         from os import scandir
@@ -2156,7 +2141,7 @@ class SlicerPlugin(OctoPrintPlugin):
     # noinspection PyMethodMayBeStatic
     def get_slicer_profiles_lastmodified(self, profile_path):
         """
-        .. versionadded:: 1.3.0
+        {{ version_added("1.3.0") }}
         """
         import os
 
@@ -2171,11 +2156,11 @@ class SlicerPlugin(OctoPrintPlugin):
     # noinspection PyMethodMayBeStatic
     def get_slicer_default_profile(self):
         """
-        Should return a :class:`~octoprint.slicing.SlicingProfile` containing the default slicing profile to use with
+        Should return a [[octoprint.slicing.SlicingProfile]] containing the default slicing profile to use with
         this slicer if no other profile has been selected.
 
         Returns:
-            SlicingProfile: The :class:`~octoprint.slicing.SlicingProfile` containing the default slicing profile for
+            (SlicingProfile): The [[octoprint.slicing.SlicingProfile]] containing the default slicing profile for
                 this slicer.
         """
         return None
@@ -2183,30 +2168,30 @@ class SlicerPlugin(OctoPrintPlugin):
     # noinspection PyMethodMayBeStatic
     def get_slicer_profile(self, path):
         """
-        Should return a :class:`~octoprint.slicing.SlicingProfile` parsed from the slicing profile stored at the
+        Should return a [[octoprint.slicing.SlicingProfile]] parsed from the slicing profile stored at the
         indicated `path`.
 
         Arguments:
             path (str): The absolute path from which to read the slicing profile.
 
         Returns:
-            SlicingProfile: The specified slicing profile.
+            (SlicingProfile): The specified slicing profile.
         """
         return None
 
     # noinspection PyMethodMayBeStatic
     def save_slicer_profile(self, path, profile, allow_overwrite=True, overrides=None):
         """
-        Should save the provided :class:`~octoprint.slicing.SlicingProfile` to the indicated `path`, after applying
+        Should save the provided [[octoprint.slicing.SlicingProfile]] to the indicated `path`, after applying
         any supplied `overrides`. If a profile is already saved under the indicated path and `allow_overwrite` is
-        set to False (defaults to True), an :class:`IOError` should be raised.
+        set to `False` (defaults to `True`), an `IOError` should be raised.
 
         Arguments:
             path (str): The absolute path to which to save the profile.
             profile (SlicingProfile): The profile to save.
-            allow_overwrite (boolean): Whether to allow to overwrite an existing profile at the indicated path (True,
-                default) or not (False). If a profile already exists on the path and this is False an
-                :class:`IOError` should be raised.
+            allow_overwrite (boolean): Whether to allow to overwrite an existing profile at the indicated path (`True`,
+                default) or not (`False`). If a profile already exists on the path and this is False an
+                `IOError` should be raised.
             overrides (dict): Profile overrides to apply to the `profile` before saving it
         """
         pass
@@ -2228,7 +2213,7 @@ class SlicerPlugin(OctoPrintPlugin):
         slicer implementations should generate it from the provided `model_path`.
 
         If provided, the `profile_path` is guaranteed by OctoPrint to be a serialized slicing profile created through the slicing
-        plugin's own :func:`save_slicer_profile` method.
+        plugin's own `save_slicer_profile` method.
 
         If provided, `position` will be a `dict` containing and `x` and a `y` key, indicating the position
         the center of the model on the print bed should have in the final sliced machine code. If not provided, slicer
@@ -2237,44 +2222,44 @@ class SlicerPlugin(OctoPrintPlugin):
         `on_progress` will be a callback which expects an additional keyword argument `_progress` with the current
         slicing progress which - if progress reporting is supported - the slicing plugin should call like the following:
 
-        .. code-block:: python
+        ``` python
+        if on_progress is not None:
+            if on_progress_args is None:
+                on_progress_args = ()
+            if on_progress_kwargs is None:
+                on_progress_kwargs = dict()
 
-           if on_progress is not None:
-               if on_progress_args is None:
-                   on_progress_args = ()
-               if on_progress_kwargs is None:
-                   on_progress_kwargs = dict()
-
-               on_progress_kwargs["_progress"] = your_plugins_slicing_progress
-               on_progress(*on_progress_args, **on_progress_kwargs)
+            on_progress_kwargs["_progress"] = your_plugins_slicing_progress
+            on_progress(*on_progress_args, **on_progress_kwargs)
+        ```
 
         Please note that both `on_progress_args` and `on_progress_kwargs` as supplied by OctoPrint might be `None`,
         so always make sure to initialize those values to sane defaults like depicted above before invoking the callback.
 
-        In order to support external cancellation of an ongoing slicing job via :func:`cancel_slicing`, implementations
+        In order to support external cancellation of an ongoing slicing job via `cancel_slicing`, implementations
         should make sure to track the started jobs via the `machinecode_path`, if provided.
 
         The method should return a 2-tuple consisting of a boolean `flag` indicating whether the slicing job was
         finished successfully (True) or not (False) and a `result` depending on the success of the slicing job.
 
-        For jobs that finished successfully, `result` should be a :class:`dict` containing additional information
+        For jobs that finished successfully, `result` should be a `dict` containing additional information
         about the slicing job under the following keys:
 
-        analysis
-            Analysis result of the generated machine code as returned by the slicer itself. This should match the
+        `analysis`
+        :   Analysis result of the generated machine code as returned by the slicer itself. This should match the
             data structure described for the analysis queue of the matching machine code format, e.g.
-            :class:`~octoprint.filemanager.analysis.GcodeAnalysisQueue` for GCODE files.
+            [[octoprint.filemanager.analysis.GcodeAnalysisQueue]] for GCODE files.
 
         For jobs that did not finish successfully (but not due to being cancelled!), `result` should be a :class:`str`
         containing a human readable reason for the error.
 
-        If the job gets cancelled, a :class:`~octoprint.slicing.SlicingCancelled` exception should be raised.
+        If the job gets cancelled, a [[octoprint.slicing.SlicingCancelled]] exception should be raised.
 
         Returns:
-            tuple: A 2-tuple (boolean, object) as outlined above.
+            (tuple): A 2-tuple (boolean, object) as outlined above.
 
         Raises:
-            SlicingCancelled: The slicing job was cancelled (via :meth:`cancel_slicing`).
+            SlicingCancelled: The slicing job was cancelled (via `cancel_slicing`).
         """
         pass
 
