@@ -2251,6 +2251,7 @@ def is_sub_path_of(path, parent):
     Example:
 
         ``` pycon
+
         >>> is_sub_path_of("/a/b/c", "/a/b")
         True
         >>> is_sub_path_of("/a/b/c", "/a/b2")
@@ -2261,6 +2262,7 @@ def is_sub_path_of(path, parent):
         True
         >>> is_sub_path_of("/a/b", "/a/b")
         True
+
         ```
     """
     rel_path = os.path.relpath(os.path.realpath(path), os.path.realpath(parent))
